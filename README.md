@@ -29,7 +29,7 @@ We believe in the power of open-source and aim to create a tool that is not only
 *   **Database:** [PostgreSQL](https://www.postgresql.org/) (for storing conversations, settings, etc.)
 *   **LLM Integration:**
     *   VLLM Inference Service
-    *   OpenAI-compatible APIs (OpenAI, Groq, Fireworks, local servers)
+    *   OpenAI-compatible APIs (OpenAI, Groq)
     *   Ollama
 
 ---
@@ -44,7 +44,7 @@ The architecture is designed for modularity and extensibility, allowing differen
 | (SvelteKit)      |      | (SvelteKit Routes) |      |    (LLM Providers)    |
 +------------------+      +--------------------+      +-----------------------+
 | - ChatWindow     |      | - API Endpoints    |      | - OpenAI API          |
-| - ChatMessages   |      |   - /conversation  |      | - Hugging Face TGI    |
+| - ChatMessages   |      |   - /conversation  |      | - VLLM    |
 | - ChatInput      |      |   - /settings      |      | - Ollama              |
 | - NavMenu        |      | - Auth Hooks       |      | - Llama.cpp           |
 | - Settings Pages |      +--------------------+      +-----------------------+
@@ -60,7 +60,7 @@ The architecture is designed for modularity and extensibility, allowing differen
          |                          |
          v                          v
 +-------------------------------------------------+
-|   Storage (MongoDB)                             |
+|   Storage (PostgreSQL)                             |
 |   - Conversations, Messages, Users, Settings    |
 +-------------------------------------------------+
 ```
@@ -72,11 +72,11 @@ The architecture is designed for modularity and extensibility, allowing differen
 3.  **Authentication & Validation:** Server hooks verify the user and the request.
 4.  **Model/Endpoint Selection:** The system selects the appropriate LLM model and its corresponding endpoint based on the conversation's settings.
 5.  **Prompt Formatting:** The conversation history is formatted into a specific prompt string using the model's defined template.
-6.  **Text Generation:** The formatted prompt is sent to the LLM provider (e.g., OpenAI, TGI).
+6.  **Text Generation:** The formatted prompt is sent to the LLM provider (e.g., OpenAI, VLLM).
 7.  **Streaming Response:** The LLM streams tokens back to the SvelteKit backend.
 8.  **Stream to UI:** The backend streams these tokens to the client in real-time.
 9.  **Display:** The `ChatMessages` component renders the tokens as they arrive.
-10. **Persistence:** Once the full response is received, the conversation is saved to MongoDB.
+10. **Persistence:** Once the full response is received, the conversation is saved to PostgreSQL.
 
 ---
 
@@ -128,12 +128,12 @@ This roadmap breaks down the project into logical phases. We will tackle one pha
 **Goal:** Save conversations to a database and allow users to have multiple, separate chats.
 
 *   [ ] **Step 2.1: Database Integration.**
-    *   Set up MongoDB.
+    *   Set up PostgreSQL.
     *   Create database schemas/types for `Conversation` and `Message`. A `Conversation` will contain an array of `Messages`.
     *   Establish the DB connection in a server-side utility file (`src/lib/server/db.ts`).
 
 *   [ ] **Step 2.2: API - Conversation Persistence.**
-    *   Modify the chat API to save/update the conversation in MongoDB after a response is generated.
+    *   Modify the chat API to save/update the conversation in PostgreSQL after a response is generated.
     *   Create new API endpoints:
         *   `GET /api/conversations`: To list all conversations for a user.
         *   `GET /api/conversation/[id]`: To fetch the messages for a specific conversation.
@@ -168,7 +168,7 @@ This roadmap breaks down the project into logical phases. We will tackle one pha
 
 *   [ ] **Step 3.5: Implement More Endpoints.**
     *   One by one, add more endpoint implementations:
-        *   `tgi.ts` for Hugging Face TGI.
+        *   `vllm.ts` for VLLM endpoints.
         *   `ollama.ts` for Ollama.
         *   `llamacpp.ts` for llama.cpp servers.
 
