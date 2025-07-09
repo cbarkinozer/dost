@@ -1,50 +1,36 @@
 <script lang="ts">
-    import { messages } from '$lib/stores/chat';
+    import { addMessage, updateLastMessage } from '$lib/stores/chat';
     import type { Message } from '$lib/stores/chat';
     import { browser } from '$app/environment';
 
+    export let conversationId: string | null; // Receive the ID as a prop
     let inputValue = '';
 
     function generateId() {
-        if (browser) {
-            return crypto.randomUUID();
-        }
+        if (browser) return crypto.randomUUID();
         return Math.random().toString(36).substring(2, 15);
     }
 
     function handleSubmit() {
+        if (!conversationId) return; // Don't submit if there's no active chat
         const trimmedValue = inputValue.trim();
         if (!trimmedValue) return;
 
-        const userMessage: Message = {
-            id: generateId(),
-            role: 'user',
-            content: trimmedValue
-        };
-
-        messages.update((currentMessages) => [...currentMessages, userMessage]);
+        const userMessage: Message = { id: generateId(), role: 'user', content: trimmedValue };
+        addMessage(conversationId, userMessage);
         inputValue = '';
 
-        const responseWords = "This is a simulated streaming response. Each word appears one by one, just like a real LLM.".split(" ");
-        
-        const assistantMessage: Message = {
-            id: generateId(),
-            role: 'assistant',
-            content: ''
-        };
-
-        messages.update(currentMessages => [...currentMessages, assistantMessage]);
+        // Simulate streaming response
+        const responseWords = "This is a simulated streaming response. Each word appears one by one.".split(" ");
+        const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
+        addMessage(conversationId, assistantMessage);
         
         let wordIndex = 0;
         const streamInterval = setInterval(() => {
             if (wordIndex < responseWords.length) {
-                messages.update(currentMessages => {
-                    const messageToUpdate = currentMessages.find(m => m.id === assistantMessage.id);
-                    if (messageToUpdate) {
-                        messageToUpdate.content += responseWords[wordIndex] + " ";
-                    }
-                    return currentMessages;
-                });
+                if (conversationId) { // Check again in case user navigates away
+                    updateLastMessage(conversationId, responseWords[wordIndex] + " ");
+                }
                 wordIndex++;
             } else {
                 clearInterval(streamInterval);

@@ -13,7 +13,7 @@
   </div>
   
   <div class="flex-shrink-0">
-    <ChatInput />
+    <ChatInput conversationId={null} />
   </div>
 
 </div>
