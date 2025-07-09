@@ -1,31 +1,42 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { marked } from 'marked';
   import hljs from 'highlight.js';
-  
-  // Import a CSS theme for highlight.js
-  // You can choose from many themes in `node_modules/highlight.js/styles`
   import 'highlight.js/styles/github-dark.css';
 
   export let content: string = '';
 
-  // Configure marked to use highlight.js for code blocks
-  marked.setOptions({
-    highlight: (code, lang) => {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-      return hljs.highlight(code, { language }).value;
-    },
-    gfm: true, // Use GitHub Flavored Markdown
-    breaks: true, // Convert single line breaks to <br>
-  });
-  
-  // The parsed HTML will be stored here
-  let parsedContent = '';
+  const renderer = new marked.Renderer();
 
-  // We use a reactive statement `$: ` to automatically re-run this code
-  // whenever the 'content' prop changes.
+  // The 'marked' library passes a single object. The `lang` property can be undefined.
+  // This is the corrected function signature.
+  renderer.code = (code: string, lang: string | undefined) => {
+    const language = lang || 'plaintext';
+    const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+    
+    const highlightedCode = hljs.highlight(code, { language: validLanguage }).value;
+    
+    // The 'hljs' class is required by highlight.js themes
+    return `<pre><code class="hljs ${validLanguage}">${highlightedCode}</code></pre>`;
+  };
+
+  marked.setOptions({
+    renderer: renderer,
+    gfm: true,
+    breaks: true,
+  });
+
+  let parsedContent = '';
   $: {
-    parsedContent = marked.parse(content) as string;
+    if (content) {
+      try {
+        parsedContent = marked.parse(content) as string;
+      } catch (e) {
+        console.error("Error parsing markdown:", e);
+        parsedContent = content; // Fallback to unparsed content on error
+      }
+    } else {
+      parsedContent = '';
+    }
   }
 </script>
 
