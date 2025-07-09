@@ -1,217 +1,217 @@
-# dost: An Open-Source AI Chat UI
+# dost: Your Open-Source, Self-Hostable, and Unrestricted AI Chat Companion
 
-**dost** is an open-source, SvelteKit-powered web UI for interacting with Large Language Models (LLMs). It is designed to be a flexible, self-hostable, and community-driven alternative to proprietary chat interfaces.
+**dost** (Turkish for "friend") is an open-source, self-hostable web UI for Large Language Models (LLMs), built for privacy, flexibility, and a 100% open-source future. It is inspired by the feature-richness of platforms like Open WebUI but is committed to remaining truly open and community-driven under the permissive **MIT License**, forever.
+
+This project was born out of the belief that powerful AI tools should be accessible to everyone without proprietary restrictions or branding clauses. `dost` is for developers, hobbyists, and organizations who want full control over their AI interactions and data.
 
 ![Dost Project Banner](https://placehold.co/1200x630/1e293b/a5b4fc/png?text=dost&font=raleway)
 
-## About The Project
+## Core Philosophy
 
-This project is inspired by the architecture and functionality of advanced chat UIs like HuggingChat. The goal of `dost` is to provide a powerful, open-source foundation (under the MIT License) for developers and enthusiasts to build, customize, and control their own conversational AI experiences.
-
-We believe in the power of open-source and aim to create a tool that is not only functional but also transparent and free from restrictive licensing. `dost` is built for everyone, from hobbyists running local models to developers integrating with powerful cloud APIs.
-
-### Core Philosophy
-
-*   **Open and Unrestricted:** Truly open-source under the MIT license. Forever.
-*   **Flexible and Modular:** Connect to a wide array of LLM backends—local or remote.
-*   **User-Centric:** A clean, responsive, and intuitive interface for seamless conversations.
-*   **Self-Hostable:** Full control over your data and infrastructure.
+*   **Truly Open & Unrestricted:** Licensed under MIT. No clauses, no exceptions. You can fork, modify, rebrand, and use `dost` for any purpose, commercial or personal.
+*   **Backend-Agnostic:** Designed to connect to a variety of LLM providers, including Ollama, OpenAI-compatible APIs (like Groq, Fireworks, or local servers), and more.
+*   **Full Data Ownership:** Self-host everything. Your conversations, user data, and settings stay on your infrastructure.
+*   **Community-Driven:** Built with the community, for the community. Contributions, suggestions, and forks are highly encouraged.
 
 ---
 
-## Technology Stack
+## Core Features (Roadmap Goals)
 
-`dost` is built with a modern, efficient, and developer-friendly stack.
-
-*   **Framework:** [SvelteKit](https://kit.svelte.dev/)
-*   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-*   **Database:** [PostgreSQL](https://www.postgresql.org/) (for storing conversations, settings, etc.)
-*   **LLM Integration:**
-    *   VLLM Inference Service
-    *   OpenAI-compatible APIs (OpenAI, Groq, Fireworks, local servers)
-    *   Ollama
+-   ✅ **Rich Chat Interface:** A clean, responsive, and intuitive UI with full Markdown, LaTeX, and code syntax highlighting.
+-   ✅ **Multi-Model Support:** Seamlessly switch between different LLM models for any conversation.
+-   ✅ **Streaming & Real-time Responses:** See the model "think" with real-time token streaming.
+-   ✅ **Retrieval-Augmented Generation (RAG):**
+    -   **Document Chat:** Upload PDFs, TXT, and other files to chat with your documents.
+    -   **Web Search:** Augment conversations with real-time web search results.
+-   ✅ **Persistence & Chat History:** All conversations are saved to a database and linked to user accounts.
+-   ✅ **User Authentication:** Secure, multi-user system with user registration and login.
+-   ✅ **Tools & Function Calling:** A framework for giving models access to external tools (e.g., calculators, APIs).
+-   ✅ **Image Generation:** Integrate with models like DALL-E or Stable Diffusion.
+-   ✅ **Easy Deployment:** Fully containerized with Docker for a simple, one-command setup.
 
 ---
 
-## Project Architecture (High-Level)
+## Technology Stack & Architecture
 
-The architecture is designed for modularity and extensibility, allowing different components to be developed and upgraded independently.
+`dost` uses a modern, decoupled architecture that separates the user interface from the backend logic. This allows for scalability and lets us use the best tools for each job.
 
 ```
-+------------------+      +--------------------+      +-----------------------+
-|   Client (UI)    | <--> |   Backend Server   | <--> |   External Services   |
-| (SvelteKit)      |      | (SvelteKit Routes) |      |    (LLM Providers)    |
-+------------------+      +--------------------+      +-----------------------+
-| - ChatWindow     |      | - API Endpoints    |      | - OpenAI API          |
-| - ChatMessages   |      |   - /conversation  |      | - Hugging Face TGI    |
-| - ChatInput      |      |   - /settings      |      | - Ollama              |
-| - NavMenu        |      | - Auth Hooks       |      | - Llama.cpp           |
-| - Settings Pages |      +--------------------+      +-----------------------+
-+------------------+                  |
-         ^                          |
-         |                          |
-         v                          v
-+------------------+      +--------------------+
-| Svelte Stores    |      |  Core Logic        |
-| (Frontend State) |      |  (Models/Endpoints)|
-+------------------+      +--------------------+
-         ^                          |
-         |                          |
-         v                          v
-+-------------------------------------------------+
-|   Storage (MongoDB)                             |
-|   - Conversations, Messages, Users, Settings    |
-+-------------------------------------------------+
++------------------------+      +-------------------------+      +-----------------------+
+|   Frontend (Client)    |      |    Backend API Server   |      |   External Services   |
+|   (SvelteKit + Vite)   |      |     (Python + FastAPI)  |      |                       |
++------------------------+      +-------------------------+      +-----------------------+
+| - UI Components        |      | - /api/chat (streaming) | <--> | - Ollama              |
+| - State Management     |      | - /api/users (auth)     | <--> | - OpenAI API          |
+| - Real-time Updates    |      | - /api/rag (documents)  | <--> | - Groq, Fireworks etc.|
++------------------------+      | - /api/tools            |      +-----------------------+
+        |                       | - Auth Middleware       |                  ^
+        |                       | - RAG Logic             |                  |
+        |                       +-------------------------+                  |
+        v                                     |                              |
+[ Browser ]                                   v                              |
+                                  +-----------------------+                  |
+                                  |   Database Storage    | -----------------+
+                                  | (PostgreSQL+PGVector) |
+                                  +-----------------------+
+                                  | - Users, Roles        |
+                                  | - Conversations       |
+                                  | - Vector Embeddings   |
+                                  +-----------------------+
 ```
 
-### Message Generation Data Flow
-
-1.  **User Input:** The `ChatInput` component sends the user's message to the backend.
-2.  **API Route:** A SvelteKit API route (e.g., `/api/conversation/[id]`) receives the request.
-3.  **Authentication & Validation:** Server hooks verify the user and the request.
-4.  **Model/Endpoint Selection:** The system selects the appropriate LLM model and its corresponding endpoint based on the conversation's settings.
-5.  **Prompt Formatting:** The conversation history is formatted into a specific prompt string using the model's defined template.
-6.  **Text Generation:** The formatted prompt is sent to the LLM provider (e.g., OpenAI, TGI).
-7.  **Streaming Response:** The LLM streams tokens back to the SvelteKit backend.
-8.  **Stream to UI:** The backend streams these tokens to the client in real-time.
-9.  **Display:** The `ChatMessages` component renders the tokens as they arrive.
-10. **Persistence:** Once the full response is received, the conversation is saved to MongoDB.
+*   **Frontend:**
+    *   **Framework:** [SvelteKit](https://kit.svelte.dev/)
+    *   **Language:** [TypeScript](https://www.typescriptlang.org/)
+    *   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+    *   **State Management:** Svelte Stores
+*   **Backend:**
+    *   **Framework:** [FastAPI](https://fastapi.tiangolo.com/) (Python)
+    *   **Language:** [Python 3.11+](https://www.python.org/)
+    *   **Data Validation:** [Pydantic](https://docs.pydantic.dev/)
+*   **Database:**
+    *   **Primary:** [PostgreSQL](https://www.postgresql.org/) for relational data (users, chats).
+    *   **Vector Store:** [PGVector](https://github.com/pgvector/pgvector) extension for efficient similarity search in RAG.
+    *   **Migrations:** [Alembic](https://alembic.sqlalchemy.org/en/latest/) for database schema management.
+*   **Containerization:**
+    *   **Orchestration:** [Docker Compose](https://docs.docker.com/compose/) for easy local development and deployment.
 
 ---
 
-## Development Roadmap: A Step-by-Step Plan
+## The Development Roadmap: A Step-by-Step Plan
 
-This roadmap breaks down the project into logical phases. We will tackle one phase at a time.
+This project is broken down into logical, achievable phases. We will build from the ground up, ensuring a solid foundation at each step.
 
-### ✅ **Phase 0: Initial Project Setup**
+### ✅ **Phase 0: Project Foundation (You are here!)**
+-   [x] Initialize `dost` SvelteKit project.
+-   [x] Set up `.gitignore`.
+-   [x] Create this detailed `README.md` as our project blueprint.
+-   [ ] **Next Step:** Set up the monorepo structure with `frontend` and `backend` directories.
 
-*   [x] **Action:** Initialize a new SvelteKit project.
-    ```bash
-    npm create svelte@latest dost
-    ```
-*   [x] **Action:** Install and configure Tailwind CSS for styling.
-    ```bash
-    npx svelte-add@latest tailwindcss
-    npm install
-    ```
-*   [x] **Action:** Set up basic project structure (folders for `components`, `lib/server`, etc.).
-*   [x] **Action:** Create this `README.md` file to serve as our project blueprint.
+---
 
-### ⏳ **Phase 1: The Core Chat Interface (MVP)**
+### ⏳ **Phase 1: The Backend Foundation (API & Database)**
+**Goal:** Create a running FastAPI backend server that can connect to a database.
+-   [ ] **1.1:** Create a `backend` directory and set up a Python virtual environment.
+-   [ ] **1.2:** Install FastAPI, Uvicorn, SQLAlchemy, Alembic, psycopg2-binary, and python-dotenv.
+-   [ ] **1.3:** Create a basic FastAPI app with a root `/` endpoint that returns `{"message": "Dost Backend is running"}`.
+-   [ ] **1.4:** Configure database connection using environment variables.
+-   [ ] **1.5:** Set up Alembic for database migrations. Create the first migration for `users` and `conversations` tables.
 
-**Goal:** Create a working, single-session chat interface that can talk to one hardcoded LLM backend. No database, no user accounts, just a functional chat box.
+---
 
-*   [ ] **Step 1.1: Build the Static UI Layout.**
-    *   Create the main layout in `src/routes/+layout.svelte`.
-    *   This layout should have a grid with a sidebar for future conversation history and a main area for the chat window.
-    *   Use placeholder components for now.
+### ⏳ **Phase 2: Core Chat API (No Streaming)**
+**Goal:** Create the first API endpoint that can receive messages and get a non-streaming response from an LLM.
+-   [ ] **2.1:** Create Pydantic models for chat requests and responses.
+-   [ ] **2.2:** Create a `/api/v1/chat` `POST` endpoint that accepts a list of messages.
+-   [ ] **2.3:** Implement a simple, hardcoded call to an OpenAI-compatible API (like Ollama's) using the `requests` or `httpx` library.
+-   [ ] **2.4:** The endpoint should return the complete LLM response once it's fully generated.
+-   [ ] **2.5:** Add logic to save the user message and the assistant's response to the database.
 
-*   [ ] **Step 1.2: Create the Chat Components.**
-    *   `src/lib/components/chat/ChatWindow.svelte`: The main container.
-    *   `src/lib/components/chat/ChatMessages.svelte`: A component to display a list of messages. Use dummy data (an array of message objects) to style the user and assistant bubbles.
-    *   `src/lib/components/chat/ChatInput.svelte`: The text input field and send button.
+---
 
-*   [ ] **Step 1.3: Implement the First Backend Endpoint.**
-    *   Create a SvelteKit API route: `src/routes/api/chat/+server.ts`.
-    *   This `POST` endpoint will accept a `messages` array.
-    *   **Crucially**, it will connect to **one** LLM provider (e.g., an OpenAI-compatible API using `openai-ts`).
-    *   Implement **streaming**. The endpoint should return a `ReadableStream` that yields tokens as they are received from the LLM.
+### ⏳ **Phase 3: The Frontend Foundation (SvelteKit)**
+**Goal:** Set up the SvelteKit frontend with basic structure and styling.
+-   [ ] **3.1:** Create a `frontend` directory and move the SvelteKit files into it.
+-   [ ] **3.2:** Install and configure Tailwind CSS.
+-   [ ] **3.3:** Create the main layout in `src/routes/+layout.svelte` with a sidebar and a main content area.
+-   [ ] **3.4:** Create placeholder components: `src/lib/components/Sidebar.svelte`, `src/lib/components/ChatWindow.svelte`.
 
-*   [ ] **Step 1.4: Frontend-Backend Integration.**
-    *   In the main page (`src/routes/+page.svelte`), manage the state of the current chat (the array of messages).
-    *   When the user sends a message via `ChatInput`, call the `/api/chat` endpoint.
-    *   Process the streamed response from the API and append the tokens to the last message in your message array in real-time. This will make the assistant "type."
+---
 
-### Phase 2: Persistence & Multi-Conversation Support
+### ⏳ **Phase 4: Building the Static Chat UI**
+**Goal:** Develop the visual components for the chat interface using dummy data.
+-   [ ] **4.1:** `src/lib/components/chat/MessageBubble.svelte`: Component to display a single message (user or assistant). Style it.
+-   [ ] **4.2:** `src/lib/components/chat/MessageHistory.svelte`: Component to display an array of `MessageBubble`s.
+-   [ ] **4.3:** `src/lib/components/chat/ChatInput.svelte`: The text area and send button.
+-   [ ] **4.4:** Assemble these components in `src/routes/+page.svelte` and populate with a hardcoded array of messages to perfect the look and feel.
 
-**Goal:** Save conversations to a database and allow users to have multiple, separate chats.
+---
 
-*   [ ] **Step 2.1: Database Integration.**
-    *   Set up MongoDB.
-    *   Create database schemas/types for `Conversation` and `Message`. A `Conversation` will contain an array of `Messages`.
-    *   Establish the DB connection in a server-side utility file (`src/lib/server/db.ts`).
+### ⏳ **Phase 5: The First Connection (MVP)**
+**Goal:** Connect the frontend to the backend to create a working, non-streaming chat application.
+-   [ ] **5.1:** Set up a proxy in `vite.config.ts` to forward frontend `/api` requests to the backend FastAPI server to avoid CORS issues in development.
+-   [ ] **5.2:** In `+page.svelte`, manage the chat state (the array of messages) using a Svelte store.
+-   [ ] **5.3:** When the user sends a message, make a `fetch` call from the frontend to the backend's `/api/v1/chat` endpoint.
+-   [ ] **5.4:** On receiving the full response, add the assistant's message to the chat state to update the UI.
 
-*   [ ] **Step 2.2: API - Conversation Persistence.**
-    *   Modify the chat API to save/update the conversation in MongoDB after a response is generated.
-    *   Create new API endpoints:
-        *   `GET /api/conversations`: To list all conversations for a user.
-        *   `GET /api/conversation/[id]`: To fetch the messages for a specific conversation.
-        *   `POST /api/conversation`: To create a new, empty conversation.
+---
 
-*   [ ] **Step 2.3: UI - Conversation History.**
-    *   Create the `src/lib/components/NavMenu.svelte` component.
-    *   This component will fetch the list of conversations from `/api/conversations` and display them.
-    *   Clicking a conversation should navigate the user to that chat.
+### ⏳ **Phase 6: Real-time Streaming**
+**Goal:** Make the assistant's response appear token-by-token.
+-   [ ] **6.1: Backend:** Modify the `/api/v1/chat` endpoint to make a streaming request to the LLM and return a FastAPI `StreamingResponse`.
+-   [ ] **6.2: Frontend:** Refactor the `fetch` call to handle a `ReadableStream`.
+-   [ ] **6.3: Frontend:** As tokens arrive, append them to the last message in the chat state, creating the "typing" effect.
 
-*   [ ] **Step 2.4: Dynamic Routing.**
-    *   Implement the dynamic route `src/routes/conversation/[id]/+page.svelte`.
-    *   This page will use its `+page.server.ts` to load the messages for the specific conversation `id` and pass them to the `ChatWindow`.
+---
 
-### Phase 3: The Flexible Model & Endpoint System
+### ⏳ **Phase 7: Persistence & Chat History**
+**Goal:** Allow users to have multiple conversations and switch between them.
+-   [ ] **7.1: Backend:** Create API endpoints: `GET /conversations`, `POST /conversations`, `GET /conversations/[id]`.
+-   [ ] **7.2: Frontend:** In the `Sidebar.svelte` component, fetch and display the list of conversations.
+-   [ ] **7.3: Frontend:** Implement dynamic routing. Create a `src/routes/c/[id]/+page.svelte` route.
+-   [ ] **7.4: Frontend:** Clicking a conversation in the sidebar should navigate to its page and load its message history.
 
-**Goal:** Abstract the LLM connection to support multiple models and providers, configured via environment variables. This is the core of the inspiration project's flexibility.
+---
 
-*   [ ] **Step 3.1: The Configuration System.**
-    *   Create a system (`src/lib/server/models.ts`) that reads a `MODELS` environment variable. This variable will be a JSON string defining available models, their parameters, and endpoints.
+### ⏳ **Phase 8: User Authentication**
+**Goal:** Add a secure, multi-user system.
+-   [ ] **8.1: Backend:** Integrate JWT (JSON Web Tokens) for authentication. Add `password` hashing (e.g., with `passlib`).
+-   [ ] **8.2: Backend:** Create `/auth/register`, `/auth/login`, and `/auth/me` endpoints.
+-   [ ] **8.3: Backend:** Protect API endpoints; associate conversations with a `user_id`.
+-   [ ] **8.4: Frontend:** Create `Login` and `Register` pages.
+-   [ ] **8.5: Frontend:** Store the JWT in a secure cookie. Use a `+layout.server.ts` or hooks to manage user state and protect routes.
 
-*   [ ] **Step 3.2: Endpoint Abstraction.**
-    *   Define a generic `Endpoint` type/interface. It will be a function that takes messages and parameters and returns a streamed response.
-    *   Refactor the hardcoded LLM connection from Phase 1 into the first implementation of this interface (e.g., `src/lib/server/endpoints/openai.ts`).
+---
 
-*   [ ] **Step 3.3: Model & Endpoint Mapping.**
-    *   Write the logic that processes the `MODELS` config. For each model definition, it should attach the correct `Endpoint` function based on the endpoint type specified in the config (e.g., `"type": "openai"`).
+### ⏳ **Phase 9: The Configurable Model System**
+**Goal:** Allow connecting to different models and endpoints.
+-   [ ] **9.1: Backend:** Design a configuration system (e.g., a `models.yaml` file) to define available models, their API endpoints, and types (e.g., `openai`, `ollama`).
+-   [ ] **9.2: Backend:** Refactor the chat logic to be a generic "endpoint handler" that routes requests to the correct LLM based on the conversation's settings.
+-   [ ] **9.3: Frontend:** Add a model selector dropdown to the chat interface, populated from a new `/api/v1/models` endpoint.
+-   [ ] **9.4: Backend/Frontend:** Store the selected `model_id` with each conversation.
 
-*   [ ] **Step 3.4: UI - Model Selection.**
-    *   Add a dropdown or settings modal where the user can select which model to use for a conversation. This will be populated from the `MODELS` config.
-    *   The chosen model ID will be saved with the conversation data.
+---
 
-*   [ ] **Step 3.5: Implement More Endpoints.**
-    *   One by one, add more endpoint implementations:
-        *   `tgi.ts` for Hugging Face TGI.
-        *   `ollama.ts` for Ollama.
-        *   `llamacpp.ts` for llama.cpp servers.
+### ⏳ **Phase 10: RAG - Document Upload & Processing**
+**Goal:** Implement the backend foundation for chatting with documents.
+-   [ ] **10.1: Backend:** Add PGVector extension to the PostgreSQL Docker setup.
+-   [ ] **10.2: Backend:** Install necessary Python libraries: `pypdf`, `sentence-transformers`, `langchain`.
+-   [ ] **10.3: Backend:** Create a file upload endpoint (`/api/v1/documents`).
+-   [ ] **10.4: Backend:** Implement a processing pipeline: on upload, extract text, split it into chunks, generate embeddings using `sentence-transformers`, and store the vectors in the database.
+-   [ ] **10.5: Backend:** Modify the chat endpoint: if a document is referenced, perform a similarity search to retrieve relevant chunks and inject them into the LLM's context.
 
-### Phase 4: Advanced Features
+---
 
-**Goal:** Implement the powerful RAG and Tools features.
+### ⏳ **Phase 11: RAG - Frontend Integration**
+**Goal:** Build the UI for the document RAG feature.
+-   [ ] **11.1: Frontend:** Create a "Documents" section or library where users can upload and manage files.
+-   [ ] **11.2: Frontend:** Add a button in the `ChatInput` to attach a document to the current conversation.
+-   [ ] **11.3: Frontend:** Display which documents are being used as context for a conversation.
 
-*   [ ] **Step 4.1: Web Search (RAG).**
-    *   **Backend:** Integrate a web search API (e.g., Serper) and a web scraping library (e.g., Cheerio). Create an embedding model utility (e.g., using `transformers.js`). Create a `runWebSearch` function that takes a query, searches, scrapes, embeds, and returns the most relevant context.
-    *   **Frontend:** Add a "Web Search" toggle to the UI. Create a component to display the web search status and results (`OpenWebSearchResults.svelte`).
+---
 
-*   [ ] **Step 4.2: Tools System.**
-    *   **Backend:** Define a `Tool` data structure. Create a `runTools` function that can parse a model's request to use a tool, execute the tool's function, and return the result. Start with one simple, built-in tool (like a calculator).
-    *   **Frontend:** Create a `ToolUpdate.svelte` component to show that a tool is being used and display its results within the chat message.
+### ⏳ **Phase 12: RAG - Web Search**
+**Goal:** Augment conversations with live web search results.
+-   [ ] **12.1: Backend:** Integrate a web search library (e.g., `duckduckgo-search`).
+-   [ ] **12.2: Backend:** Implement a "pre-processing" step for chat. If a "web search" flag is enabled, the backend first generates a search query from the user's prompt, executes the search, and injects the results into the context for the final LLM call.
+-   [ ] **12.3: Frontend:** Add a "Web Search" toggle switch to the UI.
+-   [ ] **12.4: Frontend:** Display search results or status indicators to the user.
 
-### Phase 5: User Experience & Polish
+---
 
-**Goal:** Add user accounts, settings, and other quality-of-life features.
-
-*   [ ] **Step 5.1: Authentication.**
-    *   Implement a full authentication system. [SvelteKit-Auth](https://authjs.dev/getting-started/providers/sveltekit) is a good option.
-    *   Associate conversations with `userId` instead of just a session ID.
-
-*   [ ] **Step 5.2: Settings & Customization.**
-    *   Create a `/settings` page.
-    *   Allow users to manage their profile, set a custom system prompt, toggle the theme (light/dark), etc.
-
-*   [ ] **Step 5.3: The "Assistants" Feature.**
-    *   This is a capstone feature that combines previous work. An "Assistant" will be a saved configuration that bundles:
-        *   A specific model (`modelId`).
-        *   A custom preprompt.
-        *   A set of enabled tools.
-        *   A web search configuration.
-    *   Users can create, share, and use these pre-configured assistants.
+### ⏳ **Phase 13: UI/UX Polish & Settings**
+**Goal:** Add quality-of-life features and user settings.
+-   [ ] **13.1:** Create a `/settings` page for user profile management.
+-   [ ] **13.2:** Implement light/dark theme toggle.
+-   [ ] **13.3:** Add features like "copy message," "regenerate response," and "edit message."
+-   [ ] **13.4:** Create a comprehensive `docker-compose.yml` for easy production deployment.
 
 ---
 
 ## Contributing
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-Please see the `CONTRIBUTING.md` file for details on our code of conduct and the process for submitting pull requests.
+Contributions are the lifeblood of open source. If you're excited about the vision for `dost`, your help is welcome! Please feel free to open an issue to discuss a bug or feature, or submit a pull request.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE.md` for more information.
+This project is distributed under the **MIT License**. See the `LICENSE` file for more information. You are free to use, modify, and distribute this software for any purpose, with no requirement to preserve branding.
