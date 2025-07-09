@@ -77,134 +77,43 @@ This project was born out of the belief that powerful AI tools should be accessi
 
 ---
 
-## The Development Roadmap: A Step-by-Step Plan
+## The Development Roadmap: A Granular, UI-First Plan
 
-This project is broken down into logical, achievable phases. We will build from the ground up, ensuring a solid foundation at each step.
+This project will be built "UI-first". We will create the entire frontend application using mocked data and simulated interactions. Once the user experience is complete and polished, we will build the backend API and swap out the mock data for real API calls.
 
-### ✅ **Phase 0: Project Foundation (You are here!)**
--   [x] Initialize `dost` SvelteKit project.
--   [x] Set up `.gitignore`.
--   [x] Create this detailed `README.md` as our project blueprint.
--   [ ] **Next Step:** Set up the monorepo structure with `frontend` and `backend` directories.
+### **Module 1: Building the Complete Frontend UI (Phases 1-10)**
+*Goal: A beautiful, interactive, and feature-rich frontend that feels like a real application, powered entirely by local, mock data.*
 
----
-
-### ⏳ **Phase 1: The Backend Foundation (API & Database)**
-**Goal:** Create a running FastAPI backend server that can connect to a database.
--   [ ] **1.1:** Create a `backend` directory and set up a Python virtual environment.
--   [ ] **1.2:** Install FastAPI, Uvicorn, SQLAlchemy, Alembic, psycopg2-binary, and python-dotenv.
--   [ ] **1.3:** Create a basic FastAPI app with a root `/` endpoint that returns `{"message": "Dost Backend is running"}`.
--   [ ] **1.4:** Configure database connection using environment variables.
--   [ ] **1.5:** Set up Alembic for database migrations. Create the first migration for `users` and `conversations` tables.
+-   [x] **Phase 1: Project & UI Foundation:** Initialize SvelteKit/FastAPI monorepo. Build the static chat UI layout with a sidebar and main content area using Tailwind CSS.
+-   [x] **Phase 2: Core Chat Interactivity:** Implement Svelte stores for state management. Make the chat input functional (add messages, simulate responses) using local state.
+-   [ ] **Phase 3: Rich Content & Markdown:** Integrate `marked` and a syntax highlighting library (like `highlight.js`) to render LLM responses with proper Markdown, code blocks, and other formatting.
+-   [ ] **Phase 4: Conversation History UI:** Build the UI for managing multiple chats. Create a `ChatHistory` component in the sidebar that displays a list of mock conversations. Make them clickable.
+-   [ ] **Phase 5: Dynamic Routing & Chat Pages:** Implement SvelteKit's dynamic routing (`/c/[id]`). When a user clicks a mock conversation in the sidebar, they are navigated to a unique page for that chat, which displays its specific (mocked) message history.
+-   [ ] **Phase 6: Advanced Chat Controls:** Build the UI components for advanced interactions: "Copy Message", "Regenerate Response", "Edit Message", and "Delete Message". Add mock functionality to them (e.g., updating the Svelte store).
+-   [ ] **Phase 7: The Settings & Profile Page:** Create a `/settings` page with multiple tabs (Profile, Interface, Models). Build all the UI controls (text inputs, toggles, dropdowns) with no backend logic.
+-   [ ] **Phase 8: The Document Management UI (RAG):** Create a `/documents` page where users can see a list of their uploaded files. Build the UI for the file upload component (it won't actually upload yet). Add UI elements to the chat input to "attach" a mock document to a conversation.
+-   [ ] **Phase 9: The Admin Panel UI:** Create an `/admin` area with pages for User Management, System Settings, and Model Management. Build the tables and forms to display and edit mock data.
+-   [ ] **Phase 10: The Login/Register UI:** Create the authentication pages (`/login`, `/register`). Build the forms, but have them lead to a successful "mock" login that just navigates the user to the main chat page.
 
 ---
+### **Module 2: Building the Backend API (Phases 11-16)**
+*Goal: A robust, secure, and powerful FastAPI backend that provides all the necessary data and logic for the frontend.*
 
-### ⏳ **Phase 2: Core Chat API (No Streaming)**
-**Goal:** Create the first API endpoint that can receive messages and get a non-streaming response from an LLM.
--   [ ] **2.1:** Create Pydantic models for chat requests and responses.
--   [ ] **2.2:** Create a `/api/v1/chat` `POST` endpoint that accepts a list of messages.
--   [ ] **2.3:** Implement a simple, hardcoded call to an OpenAI-compatible API (like Ollama's) using the `requests` or `httpx` library.
--   [ ] **2.4:** The endpoint should return the complete LLM response once it's fully generated.
--   [ ] **2.5:** Add logic to save the user message and the assistant's response to the database.
-
----
-
-### ⏳ **Phase 3: The Frontend Foundation (SvelteKit)**
-**Goal:** Set up the SvelteKit frontend with basic structure and styling.
--   [ ] **3.1:** Create a `frontend` directory and move the SvelteKit files into it.
--   [ ] **3.2:** Install and configure Tailwind CSS.
--   [ ] **3.3:** Create the main layout in `src/routes/+layout.svelte` with a sidebar and a main content area.
--   [ ] **3.4:** Create placeholder components: `src/lib/components/Sidebar.svelte`, `src/lib/components/ChatWindow.svelte`.
+-   [ ] **Phase 11: Backend & Database Foundation:** Set up the FastAPI server, PostgreSQL database (with Docker), and Alembic for migrations. Create the initial `users`, `conversations`, and `messages` tables.
+-   [ ] **Phase 12: Core Chat & Model API:** Create the first real API endpoint: `/api/v1/chat`. This endpoint will take a message history, connect to a real LLM provider (e.g., Ollama, OpenAI), and stream the response back.
+-   [ ] **Phase 13: User Authentication & Persistence API:** Implement JWT-based authentication (`/auth/register`, `/auth/login`). Create API endpoints for creating, retrieving, and listing conversations, all associated with the authenticated user.
+-   [ ] **Phase 14: Document Processing & RAG API:** Implement the backend logic for file uploads. Use `pypdf` to extract text, `sentence-transformers` for embeddings, and `pgvector` for storage. Create the RAG-enabled chat endpoint that retrieves context before calling the LLM.
+-   [ ] **Phase 15: Advanced Backend Logic:** Implement the API endpoints for the Admin Panel (e.g., listing/editing users) and the Settings pages (e.g., saving user preferences).
+-   [ ] **Phase 16: Tooling & Configuration:** Build the backend system for defining and managing different LLM models from a config file. Implement the server-side logic for "regenerating" responses or editing message history.
 
 ---
+### **Module 3: Connecting Frontend to Backend (Phases 17-20)**
+*Goal: Systematically replace all mock data and functions in the SvelteKit app with live calls to the FastAPI backend.*
 
-### ⏳ **Phase 4: Building the Static Chat UI**
-**Goal:** Develop the visual components for the chat interface using dummy data.
--   [ ] **4.1:** `src/lib/components/chat/MessageBubble.svelte`: Component to display a single message (user or assistant). Style it.
--   [ ] **4.2:** `src/lib/components/chat/MessageHistory.svelte`: Component to display an array of `MessageBubble`s.
--   [ ] **4.3:** `src/lib/components/chat/ChatInput.svelte`: The text area and send button.
--   [ ] **4.4:** Assemble these components in `src/routes/+page.svelte` and populate with a hardcoded array of messages to perfect the look and feel.
-
----
-
-### ⏳ **Phase 5: The First Connection (MVP)**
-**Goal:** Connect the frontend to the backend to create a working, non-streaming chat application.
--   [ ] **5.1:** Set up a proxy in `vite.config.ts` to forward frontend `/api` requests to the backend FastAPI server to avoid CORS issues in development.
--   [ ] **5.2:** In `+page.svelte`, manage the chat state (the array of messages) using a Svelte store.
--   [ ] **5.3:** When the user sends a message, make a `fetch` call from the frontend to the backend's `/api/v1/chat` endpoint.
--   [ ] **5.4:** On receiving the full response, add the assistant's message to the chat state to update the UI.
-
----
-
-### ⏳ **Phase 6: Real-time Streaming**
-**Goal:** Make the assistant's response appear token-by-token.
--   [ ] **6.1: Backend:** Modify the `/api/v1/chat` endpoint to make a streaming request to the LLM and return a FastAPI `StreamingResponse`.
--   [ ] **6.2: Frontend:** Refactor the `fetch` call to handle a `ReadableStream`.
--   [ ] **6.3: Frontend:** As tokens arrive, append them to the last message in the chat state, creating the "typing" effect.
-
----
-
-### ⏳ **Phase 7: Persistence & Chat History**
-**Goal:** Allow users to have multiple conversations and switch between them.
--   [ ] **7.1: Backend:** Create API endpoints: `GET /conversations`, `POST /conversations`, `GET /conversations/[id]`.
--   [ ] **7.2: Frontend:** In the `Sidebar.svelte` component, fetch and display the list of conversations.
--   [ ] **7.3: Frontend:** Implement dynamic routing. Create a `src/routes/c/[id]/+page.svelte` route.
--   [ ] **7.4: Frontend:** Clicking a conversation in the sidebar should navigate to its page and load its message history.
-
----
-
-### ⏳ **Phase 8: User Authentication**
-**Goal:** Add a secure, multi-user system.
--   [ ] **8.1: Backend:** Integrate JWT (JSON Web Tokens) for authentication. Add `password` hashing (e.g., with `passlib`).
--   [ ] **8.2: Backend:** Create `/auth/register`, `/auth/login`, and `/auth/me` endpoints.
--   [ ] **8.3: Backend:** Protect API endpoints; associate conversations with a `user_id`.
--   [ ] **8.4: Frontend:** Create `Login` and `Register` pages.
--   [ ] **8.5: Frontend:** Store the JWT in a secure cookie. Use a `+layout.server.ts` or hooks to manage user state and protect routes.
-
----
-
-### ⏳ **Phase 9: The Configurable Model System**
-**Goal:** Allow connecting to different models and endpoints.
--   [ ] **9.1: Backend:** Design a configuration system (e.g., a `models.yaml` file) to define available models, their API endpoints, and types (e.g., `openai`, `ollama`).
--   [ ] **9.2: Backend:** Refactor the chat logic to be a generic "endpoint handler" that routes requests to the correct LLM based on the conversation's settings.
--   [ ] **9.3: Frontend:** Add a model selector dropdown to the chat interface, populated from a new `/api/v1/models` endpoint.
--   [ ] **9.4: Backend/Frontend:** Store the selected `model_id` with each conversation.
-
----
-
-### ⏳ **Phase 10: RAG - Document Upload & Processing**
-**Goal:** Implement the backend foundation for chatting with documents.
--   [ ] **10.1: Backend:** Add PGVector extension to the PostgreSQL Docker setup.
--   [ ] **10.2: Backend:** Install necessary Python libraries: `pypdf`, `sentence-transformers`, `langchain`.
--   [ ] **10.3: Backend:** Create a file upload endpoint (`/api/v1/documents`).
--   [ ] **10.4: Backend:** Implement a processing pipeline: on upload, extract text, split it into chunks, generate embeddings using `sentence-transformers`, and store the vectors in the database.
--   [ ] **10.5: Backend:** Modify the chat endpoint: if a document is referenced, perform a similarity search to retrieve relevant chunks and inject them into the LLM's context.
-
----
-
-### ⏳ **Phase 11: RAG - Frontend Integration**
-**Goal:** Build the UI for the document RAG feature.
--   [ ] **11.1: Frontend:** Create a "Documents" section or library where users can upload and manage files.
--   [ ] **11.2: Frontend:** Add a button in the `ChatInput` to attach a document to the current conversation.
--   [ ] **11.3: Frontend:** Display which documents are being used as context for a conversation.
-
----
-
-### ⏳ **Phase 12: RAG - Web Search**
-**Goal:** Augment conversations with live web search results.
--   [ ] **12.1: Backend:** Integrate a web search library (e.g., `duckduckgo-search`).
--   [ ] **12.2: Backend:** Implement a "pre-processing" step for chat. If a "web search" flag is enabled, the backend first generates a search query from the user's prompt, executes the search, and injects the results into the context for the final LLM call.
--   [ ] **12.3: Frontend:** Add a "Web Search" toggle switch to the UI.
--   [ ] **12.4: Frontend:** Display search results or status indicators to the user.
-
----
-
-### ⏳ **Phase 13: UI/UX Polish & Settings**
-**Goal:** Add quality-of-life features and user settings.
--   [ ] **13.1:** Create a `/settings` page for user profile management.
--   [ ] **13.2:** Implement light/dark theme toggle.
--   [ ] **13.3:** Add features like "copy message," "regenerate response," and "edit message."
--   [ ] **13.4:** Create a comprehensive `docker-compose.yml` for easy production deployment.
+-   [ ] **Phase 17: Connecting Login & Chat:** Replace the mock authentication with calls to the real `/auth` endpoints. Swap the simulated chat response with a real `fetch` call to the streaming `/api/v1/chat` endpoint.
+-   [ ] **Phase 18: Connecting Conversation History:** Rip out the mocked conversation list and replace it with a live API call in a `+layout.server.ts` file to fetch the user's real conversations from the database. Make navigation work with real conversation IDs.
+-   [ ] **Phase 19: Connecting Documents & Settings:** Wire up the document upload UI to the real file upload endpoint. Make the settings page fetch and save user preferences to the backend.
+-   [ ] **Phase 20: Final Polish & Deployment:** Create a final, production-ready `docker-compose.yml` to orchestrate the entire stack. Clean up any remaining mock code, write documentation, and finalize the project.
 
 ---
 
