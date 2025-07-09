@@ -20,6 +20,7 @@
 		"@tailwindcss/typography": "^0.5.14",
 		"@types/highlight.js": "^9.12.4",
 		"@types/marked": "^5.0.2",
+		"@types/node": "^24.0.12",
 		"autoprefixer": "^10.4.20",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",

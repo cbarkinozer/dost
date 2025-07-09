@@ -5,7 +5,6 @@
 
     let inputValue = '';
 
-    // Function to safely generate UUIDs
     function generateId() {
         if (browser) {
             return crypto.randomUUID();
@@ -26,7 +25,6 @@
         messages.update((currentMessages) => [...currentMessages, userMessage]);
         inputValue = '';
 
-        // --- Start of Streaming Simulation ---
         const responseWords = "This is a simulated streaming response. Each word appears one by one, just like a real LLM.".split(" ");
         
         const assistantMessage: Message = {
@@ -52,7 +50,6 @@
                 clearInterval(streamInterval);
             }
         }, 100);
-        // --- End of Streaming Simulation ---
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -63,13 +60,13 @@
     }
 </script>
 
-<div class="p-4 bg-gray-900 border-t border-gray-700">
+<div class="px-4 pb-4 pt-2 bg-[#0d1117]">
     <div class="max-w-3xl mx-auto">
         <form on:submit|preventDefault={handleSubmit} class="relative">
             <textarea 
                 bind:value={inputValue}
                 on:keydown={handleKeydown}
-                class="w-full p-3 pr-12 bg-gray-800 border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" 
+                class="w-full p-3 pr-12 bg-[#161b22] border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" 
                 rows="1" 
                 placeholder="Ask dost anything..."
             ></textarea>

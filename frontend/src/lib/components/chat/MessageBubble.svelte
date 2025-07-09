@@ -28,9 +28,7 @@
 </script>
 
 <div class="w-full group relative">
-  <div class="flex items-start gap-4 p-4" 
-       class:bg-gray-900={role === 'user'}
-       class:bg-gray-800={role === 'assistant'}>
+  <div class="flex items-start gap-4 p-4 text-gray-200">
     
     <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white"
          class:bg-blue-500={role === 'user'}
