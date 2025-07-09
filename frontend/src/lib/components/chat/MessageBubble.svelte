@@ -1,9 +1,11 @@
 <script lang="ts">
+  import Markdown from './Markdown.svelte'; // Import our new component
+
   export let role: 'user' | 'assistant';
   export let content: string;
 </script>
 
-<div class="max-w-2xl mx-auto w-full px-4">
+<div class="w-full">
   <div class="flex items-start gap-4 p-4 rounded-lg my-2" 
        class:bg-white={role === 'user'} 
        class:dark:bg-gray-700={role === 'user'}
@@ -20,8 +22,8 @@
       {/if}
     </div>
     
-    <div class="prose dark:prose-invert max-w-none">
-      <p>{content}</p>
-    </div>
+    <!-- Replace the old div with our new component -->
+    <Markdown {content} />
+    
   </div>
 </div>

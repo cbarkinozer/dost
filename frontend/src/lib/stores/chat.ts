@@ -1,23 +1,28 @@
 import { writable } from 'svelte/store';
 
-// Define the structure of a single message
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
-  // We'll add more fields like id, timestamp later
 }
 
-// This is our initial dummy data
 const initialMessages: Message[] = [
   {
-    role: "user",
-    content: "Hello! Can you explain what Svelte is in simple terms?"
+    role: 'user',
+    content: 'Can you give me a simple "Hello, World!" example in Python?'
   },
   {
-    role: "assistant",
-    content: "Of course! Svelte is a modern web framework..." // (keep the long text)
+    role: 'assistant',
+    content: `Of course! Here is a classic "Hello, World!" in Python:
+
+\`\`\`python
+def say_hello():
+    print("Hello, World!")
+
+say_hello()
+\`\`\`
+
+It's very straightforward. You define a function and then call it.`
   }
 ];
 
-// Create the writable store
 export const messages = writable<Message[]>(initialMessages);
