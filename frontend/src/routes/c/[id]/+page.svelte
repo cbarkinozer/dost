@@ -1,23 +1,38 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { derived } from 'svelte/store';
   import MessageBubble from '$lib/components/chat/MessageBubble.svelte';
   import ChatInput from '$lib/components/chat/ChatInput.svelte';
-  import { messages } from '$lib/stores/chat';
+  import { messageStore } from '$lib/stores/chat';
   import { selectedConversationId } from '$lib/stores/conversations';
   import ChatPlaceholder from '$lib/components/chat/ChatPlaceholder.svelte';
+  import type { Message } from '$lib/stores/chat';
 
-  $: if ($page.params.id) {
-    selectedConversationId.set($page.params.id);
-  }
+  // This reactive variable will hold the messages for the CURRENT conversation
+  let currentConversationId: string | null = null;
+
+  // This `derived` store automatically gives us the correct message list
+  // whenever the page ID or the main messageStore changes.
+  const currentMessages = derived(
+    [page, messageStore],
+    ([$page, $messageStore]) => {
+      const convId = $page.params.id;
+      currentConversationId = convId;
+      if (convId) {
+        selectedConversationId.set(convId);
+        return $messageStore[convId] || [];
+      }
+      return [];
+    }
+  );
+
 </script>
 
 <div class="flex-1 flex flex-col h-full">
-
-  <!-- Message History (or Placeholder) -->
   <div class="flex-1 overflow-y-auto p-4">
-      {#if $messages.length > 0}
+      {#if $currentMessages.length > 0}
           <div class="space-y-4 max-w-3xl mx-auto">
-              {#each $messages as message (message.id)}
+              {#each $currentMessages as message (message.id)}
                   <MessageBubble id={message.id} role={message.role} content={message.content} />
               {/each}
           </div>
@@ -25,10 +40,9 @@
           <ChatPlaceholder />
       {/if}
   </div>
-
-  <!-- Chat Input -->
+  
   <div class="flex-shrink-0">
-    <ChatInput />
+    <!-- Pass the current conversation ID to the input component -->
+    <ChatInput conversationId={currentConversationId} />
   </div>
-    
 </div>

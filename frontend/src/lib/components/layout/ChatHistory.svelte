@@ -1,9 +1,30 @@
 <script lang="ts">
     import { conversations, selectedConversationId } from '$lib/stores/conversations';
+    import { messageStore } from '$lib/stores/chat';
+    import { goto } from '$app/navigation';
     import PencilIcon from '$lib/components/icons/PencilIcon.svelte';
+    import { browser } from '$app/environment';
+
+    function generateId() {
+        if (browser) return crypto.randomUUID();
+        return Math.random().toString(36).substring(2, 15);
+    }
 
     function handleNewChat() {
-        alert('Creating a new chat!'); 
+        const newId = generateId();
+        const newTitle = `New Chat ${newId.substring(0, 4)}`;
+
+        // Add the new chat to the conversations store (at the top)
+        conversations.update(convs => [{ id: newId, title: newTitle }, ...convs]);
+
+        // Add an empty message history for this new chat
+        messageStore.update(history => {
+            history[newId] = [];
+            return history;
+        });
+
+        // Navigate the user to the new chat page
+        goto(`/c/${newId}`, { invalidateAll: true });
     }
 </script>
 
@@ -15,9 +36,9 @@
     </button>
 </div>
 
-
 <!-- Conversation List -->
 <nav class="flex-1 overflow-y-auto px-2">
+    <div class="text-sm text-gray-500 px-3 py-2">All Chats</div>
     <ul class="space-y-1">
         {#each $conversations as conv (conv.id)}
             <li>
