@@ -34,3 +34,13 @@
         {/each}
     </ul>
 </nav>
+
+<!-- User/Settings Menu -->
+<div class="mt-auto pt-4 border-t dark:border-gray-700">
+    <a href="/settings" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700">
+        <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
+            U
+        </div>
+        <span class="text-sm font-medium">User Settings</span>
+    </a>
+</div>
