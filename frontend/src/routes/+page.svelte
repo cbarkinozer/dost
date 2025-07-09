@@ -2,6 +2,10 @@
   import MessageBubble from "$lib/components/chat/MessageBubble.svelte";
   import ChatInput from "$lib/components/chat/ChatInput.svelte";
   import { messages } from "$lib/stores/chat";
+  import { selectedConversationId } from "$lib/stores/conversations";
+
+  // When the user is on the homepage, deselect any conversation
+  selectedConversationId.set(null); 
 </script>
 
 <!-- This is the main container for the chat view -->
