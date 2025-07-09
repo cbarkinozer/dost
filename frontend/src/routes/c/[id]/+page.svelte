@@ -23,8 +23,11 @@
 
   <!-- Message History -->
   <div class="flex-1 overflow-y-auto p-4 space-y-4">
-    {#each $messages as message (message.content + Math.random())}
-      <MessageBubble role={message.role} content={message.content} />
+    {#each $messages as message (message.id)} <!-- Use the new unique id as the key -->
+    <MessageBubble 
+        id={message.id}
+        role={message.role} 
+        content={message.content} />
     {/each}
   </div>
 
