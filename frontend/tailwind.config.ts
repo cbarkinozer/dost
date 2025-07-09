@@ -4,7 +4,12 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 
 	theme: {
-		extend: {}
+		extend: {
+			colors: {
+				'dark-primary': '#0d1117',
+				'dark-secondary': '#161b22',
+			}
+		}
 	},
 
 	plugins: [require('@tailwindcss/typography')]
