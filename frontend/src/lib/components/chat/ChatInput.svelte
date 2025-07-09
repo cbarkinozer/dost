@@ -1,32 +1,40 @@
 <script lang="ts">
     import { messages } from '$lib/stores/chat';
     import type { Message } from '$lib/stores/chat';
+    import { browser } from '$app/environment';
 
     let inputValue = '';
+
+    // Function to safely generate UUIDs
+    function generateId() {
+        if (browser) {
+            return crypto.randomUUID();
+        }
+        return Math.random().toString(36).substring(2, 15);
+    }
 
     function handleSubmit() {
         const trimmedValue = inputValue.trim();
         if (!trimmedValue) return;
 
         const userMessage: Message = {
-            id: crypto.randomUUID(),
+            id: generateId(),
             role: 'user',
             content: trimmedValue
         };
 
         messages.update((currentMessages) => [...currentMessages, userMessage]);
-        inputValue = ''; // Clear input immediately
+        inputValue = '';
 
         // --- Start of Streaming Simulation ---
         const responseWords = "This is a simulated streaming response. Each word appears one by one, just like a real LLM.".split(" ");
         
         const assistantMessage: Message = {
-            id: crypto.randomUUID(),
+            id: generateId(),
             role: 'assistant',
-            content: '' // Start with empty content
+            content: ''
         };
 
-        // Add the empty assistant message bubble to the UI immediately
         messages.update(currentMessages => [...currentMessages, assistantMessage]);
         
         let wordIndex = 0;

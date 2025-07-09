@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { createPopper } from '@popperjs/core';
   import { onMount, onDestroy } from 'svelte';
+  import { createPopper } from '@popperjs/core';
+  import { browser } from '$app/environment'; // Import the browser check
 
   let dropdownOpen = false;
   let triggerElement: HTMLElement;
@@ -35,17 +36,23 @@
   }
 
   onMount(() => {
-    popperInstance = createPopper(triggerElement, dropdownElement, {
-      placement: 'bottom-start',
-    });
-    window.addEventListener('click', closeDropdown);
+    // Only run this code in the browser
+    if (browser) {
+      popperInstance = createPopper(triggerElement, dropdownElement, {
+        placement: 'bottom-start',
+      });
+      window.addEventListener('click', closeDropdown);
+    }
   });
   
   onDestroy(() => {
+    // Only run this code in the browser
+    if (browser) {
       if (popperInstance) {
           popperInstance.destroy();
       }
       window.removeEventListener('click', closeDropdown);
+    }
   })
 </script>
 
