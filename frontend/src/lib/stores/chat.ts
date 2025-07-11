@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
-import { conversations } from './conversations';
+import { conversations, type Conversation } from './conversations';
+import { goto } from '$app/navigation';
 
 export interface Message {
 	id: string;
@@ -123,13 +124,22 @@ export function regenerateResponse(conversationId: string) {
 
 	messageStore.update((history) => {
 		const conversationMessages = history[conversationId];
-		if (conversationMessages && conversationMessages.length > 0) {
-			const lastMessage = conversationMessages[conversationMessages.length - 1];
-			// Ensure we are regenerating an assistant's response
-			if (lastMessage.role === 'assistant') {
-				lastMessage.content = ''; // Clear the content
-				runStreamingSimulation(conversationId, lastMessage.id);
+		if (conversationMessages) {
+			let lastUserIndex = -1;
+			for(let i = conversationMessages.length - 1; i >= 0; i--) {
+				if(conversationMessages[i].role === 'user') {
+					lastUserIndex = i;
+					break;
+				}
 			}
+
+			if (lastUserIndex !== -1) {
+				history[conversationId] = conversationMessages.slice(0, lastUserIndex + 1);
+			}
+
+			const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
+			history[conversationId].push(assistantMessage);
+			runStreamingSimulation(conversationId, assistantMessage.id);
 		}
 		return history;
 	});
@@ -140,4 +150,29 @@ export function deleteMessageHistory(conversationId: string) {
 		delete history[conversationId];
 		return history;
 	});
+}
+
+export function createChatWithPrompt(prompt: string) {
+	const allConversations = get(conversations);
+	const newId = allConversations.length > 0 ? String(Math.max(...allConversations.map(c => Number(c.id))) + 1) : "1";
+    const newTitle = prompt.length > 30 ? prompt.substring(0, 27) + '...' : prompt;
+
+    // Add to conversations store
+	// FIX: Added the 'createdAt' property
+    conversations.update(convs => [{ id: newId, title: newTitle, pinned: false, createdAt: new Date() }, ...convs]);
+    
+    const userMessage: Message = { id: generateId(), role: 'user', content: prompt };
+    messageStore.update(history => {
+        history[newId] = [userMessage];
+        return history;
+    });
+
+    goto(`/c/${newId}`).then(() => {
+        const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
+        messageStore.update(history => {
+            history[newId].push(assistantMessage);
+            return history;
+        });
+        runStreamingSimulation(newId, assistantMessage.id);
+    });
 }

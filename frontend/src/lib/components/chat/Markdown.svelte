@@ -1,45 +1,28 @@
 <script lang="ts">
-  import { marked, type Tokens } from 'marked'; // Import the 'Tokens' type
-  import hljs from 'highlight.js';
-  import 'highlight.js/styles/github-dark.css';
+	import { marked, type Token } from 'marked';
+	import CodeBlock from './CodeBlock.svelte';
 
-  export let content: string = '';
+	export let content: string = '';
 
-  // This is the most modern and recommended way to extend marked.
-  marked.use({
-    renderer: {
-      // The function signature now perfectly matches what TypeScript expects.
-      // We accept one argument of type Tokens.Code and destructure it.
-      code({ text, lang }: Tokens.Code) {
-        const language = lang || 'plaintext';
-        const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-        
-        const highlightedCode = hljs.highlight(text, { language: validLanguage }).value;
-        
-        // The 'hljs' class is required by highlight.js themes
-        return `<pre><code class="hljs ${validLanguage}">${highlightedCode}</code></pre>`;
-      }
-    },
-    gfm: true,
-    breaks: true
-  });
+	let tokens: Token[] = [];
 
-  let parsedContent = '';
-  $: {
-    if (content) {
-      try {
-        // Use the promise-based API for safety, though sync is fine here.
-        parsedContent = marked.parse(content) as string;
-      } catch (e) {
-        console.error("Error parsing markdown:", e);
-        parsedContent = content; // Fallback to unparsed content on error
-      }
-    } else {
-      parsedContent = '';
-    }
-  }
+	// Use the lexer to get tokens instead of parsing directly to HTML
+	$: tokens = marked.lexer(content || '');
+
+	// Custom renderer for non-code tokens
+	const renderer = new marked.Renderer();
+	marked.use({ renderer, gfm: true, breaks: true });
 </script>
 
 <div class="prose dark:prose-invert max-w-none">
-  {@html parsedContent}
+	{#each tokens as token}
+		{#if token.type === 'code'}
+			<CodeBlock lang={token.lang} code={token.text} />
+		{:else if token.type === 'space'}
+            <!-- Render nothing for space tokens -->
+        {:else}
+			<!-- For all other tokens, render their raw HTML representation -->
+			{@html marked.parse(token.raw, { renderer })}
+		{/if}
+	{/each}
 </div>
