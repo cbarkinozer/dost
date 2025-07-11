@@ -1,66 +1,68 @@
 <script lang="ts">
-    import { addMessage, updateLastMessage } from '$lib/stores/chat';
-    import type { Message } from '$lib/stores/chat';
-    import { browser } from '$app/environment';
+	import { submitMessage, cancelStream, isStreaming } from '$lib/stores/chat';
+	import { browser } from '$app/environment';
 
-    export let conversationId: string | null; // Receive the ID as a prop
-    let inputValue = '';
+	export let conversationId: string | null;
+	let inputValue = '';
 
-    function generateId() {
-        if (browser) return crypto.randomUUID();
-        return Math.random().toString(36).substring(2, 15);
-    }
+	function handleSubmit() {
+		if (!conversationId || $isStreaming) return;
+		const trimmedValue = inputValue.trim();
+		if (!trimmedValue) return;
 
-    function handleSubmit() {
-        if (!conversationId) return; // Don't submit if there's no active chat
-        const trimmedValue = inputValue.trim();
-        if (!trimmedValue) return;
+		submitMessage(conversationId, trimmedValue);
+		inputValue = '';
+	}
 
-        const userMessage: Message = { id: generateId(), role: 'user', content: trimmedValue };
-        addMessage(conversationId, userMessage);
-        inputValue = '';
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			handleSubmit();
+		}
+	}
 
-        // Simulate streaming response
-        const responseWords = "This is a simulated streaming response. Each word appears one by one.".split(" ");
-        const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
-        addMessage(conversationId, assistantMessage);
-        
-        let wordIndex = 0;
-        const streamInterval = setInterval(() => {
-            if (wordIndex < responseWords.length) {
-                if (conversationId) { // Check again in case user navigates away
-                    updateLastMessage(conversationId, responseWords[wordIndex] + " ");
-                }
-                wordIndex++;
-            } else {
-                clearInterval(streamInterval);
-            }
-        }, 100);
-    }
-
-    function handleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            handleSubmit();
-        }
+    function handleStop() {
+        cancelStream();
     }
 </script>
 
 <div class="px-4 pb-4 pt-2 bg-[#0d1117]">
-    <div class="max-w-3xl mx-auto">
-        <form on:submit|preventDefault={handleSubmit} class="relative">
-            <textarea 
-                bind:value={inputValue}
-                on:keydown={handleKeydown}
-                class="w-full p-3 pr-12 bg-[#161b22] border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" 
-                rows="1" 
-                placeholder="Ask dost anything..."
-            ></textarea>
-            <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-gray-200" aria-label="Send message">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-                    <path d="M2.87 2.298a.75.75 0 0 0-.812 1.021L3.39 6.624a1 1 0 0 0 .928.626H8.25a.75.75 0 0 1 0 1.5H4.318a1 1 0 0 0-.927.626l-1.333 3.305a.75.75 0 0 0 .812 1.022L13.25 8.75a.75.75 0 0 0 0-1.5L2.87 2.298Z" />
-                </svg>
-            </button>
-        </form>
-    </div>
+	<div class="max-w-3xl mx-auto">
+		{#if $isStreaming}
+			<div class="flex justify-center">
+				<button on:click={handleStop} class="flex items-center gap-2 px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                        <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5Z"></path>
+                    </svg>
+					Stop generating
+				</button>
+			</div>
+		{:else}
+			<form on:submit|preventDefault={handleSubmit} class="relative">
+				<textarea
+					bind:value={inputValue}
+					on:keydown={handleKeydown}
+					class="w-full p-3 pr-12 bg-[#161b22] border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+					rows="1"
+					placeholder="Ask dost anything..."
+				></textarea>
+				<button
+					type="submit"
+					class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+					aria-label="Send message"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 16 16"
+						fill="currentColor"
+						class="w-4 h-4"
+					>
+						<path
+							d="M2.87 2.298a.75.75 0 0 0-.812 1.021L3.39 6.624a1 1 0 0 0 .928.626H8.25a.75.75 0 0 1 0 1.5H4.318a1 1 0 0 0-.927.626l-1.333 3.305a.75.75 0 0 0 .812 1.022L13.25 8.75a.75.75 0 0 0 0-1.5L2.87 2.298Z"
+						/>
+					</svg>
+				</button>
+			</form>
+		{/if}
+	</div>
 </div>

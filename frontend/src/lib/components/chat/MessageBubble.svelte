@@ -5,25 +5,28 @@
   import PencilIcon from '$lib/components/icons/PencilIcon.svelte';
   import TrashIcon from '$lib/components/icons/TrashIcon.svelte';
   import { browser } from '$app/environment';
+  import { regenerateResponse } from '$lib/stores/chat';
 
   export let role: 'user' | 'assistant';
   export let content: string;
-  export let id: string;
+  export let conversationId: string;
+  export let isLast: boolean;
   
   function handleCopy() {
     if (browser) {
         navigator.clipboard.writeText(content);
-        alert(`Copied to clipboard!`);
+        // Maybe use a less intrusive notification later
+        // alert(`Copied to clipboard!`);
     }
   }
   function handleRegenerate() {
-    alert(`Regenerating response for message ID: ${id}`);
+    regenerateResponse(conversationId);
   }
   function handleEdit() {
-    alert(`Editing message ID: ${id}`);
+    alert(`Editing is not yet implemented.`);
   }
   function handleDelete() {
-    alert(`Deleting message ID: ${id}`);
+    alert(`Deleting single messages is not yet implemented.`);
   }
 </script>
 
@@ -44,7 +47,7 @@
   </div>
 
   <div class="absolute top-2 right-2 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-    {#if role === 'assistant'}
+    {#if role === 'assistant' && isLast}
         <button on:click={handleRegenerate} title="Regenerate" class="p-1 rounded text-gray-400 hover:bg-gray-700 hover:text-gray-200">
             <ArrowPathIcon />
         </button>

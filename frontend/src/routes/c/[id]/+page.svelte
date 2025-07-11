@@ -6,19 +6,20 @@
   import { messageStore } from '$lib/stores/chat';
   import { selectedConversationId } from '$lib/stores/conversations';
   import ChatPlaceholder from '$lib/components/chat/ChatPlaceholder.svelte';
-  import type { Message } from '$lib/stores/chat';
 
-  // This reactive variable will hold the messages for the CURRENT conversation
-  let currentConversationId: string | null = null;
+  // THE FIX: Use a reactive declaration to get the ID from the page store.
+  // This variable will now automatically update whenever the URL changes.
+  $: conversationId = $page.params.id;
 
-  // This `derived` store automatically gives us the correct message list
-  // whenever the page ID or the main messageStore changes.
+  // This `derived` store automatically gives us the correct message list.
+  // We've removed the problematic side-effect from here.
   const currentMessages = derived(
     [page, messageStore],
     ([$page, $messageStore]) => {
       const convId = $page.params.id;
-      currentConversationId = convId;
       if (convId) {
+        // This side-effect is acceptable, as it updates a global
+        // store to keep the sidebar selection in sync.
         selectedConversationId.set(convId);
         return $messageStore[convId] || [];
       }
@@ -29,20 +30,33 @@
 </script>
 
 <div class="flex-1 flex flex-col h-full">
-  <div class="flex-1 overflow-y-auto p-4">
-      {#if $currentMessages.length > 0}
-          <div class="space-y-4 max-w-3xl mx-auto">
-              {#each $currentMessages as message (message.id)}
-                  <MessageBubble id={message.id} role={message.role} content={message.content} />
-              {/each}
-          </div>
-      {:else}
-          <ChatPlaceholder />
-      {/if}
-  </div>
-  
-  <div class="flex-shrink-0">
-    <!-- Pass the current conversation ID to the input component -->
-    <ChatInput conversationId={currentConversationId} />
-  </div>
+  {#if conversationId}
+    <!-- Main chat area -->
+    <div class="flex-1 overflow-y-auto p-4">
+        {#if $currentMessages.length > 0}
+            <div class="space-y-4 max-w-3xl mx-auto">
+                {#each $currentMessages as message, i (message.id)}
+                    <MessageBubble 
+                      {conversationId}
+                      role={message.role} 
+                      content={message.content}
+                      isLast={i === $currentMessages.length - 1}
+                    />
+                {/each}
+            </div>
+        {:else}
+            <ChatPlaceholder />
+        {/if}
+    </div>
+    
+    <!-- Chat input area -->
+    <div class="flex-shrink-0">
+      <ChatInput {conversationId} />
+    </div>
+  {:else}
+    <!-- This part should now only appear if the route is invalid -->
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-gray-500">No conversation selected.</p>
+    </div>
+  {/if}
 </div>

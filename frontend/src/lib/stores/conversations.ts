@@ -1,4 +1,5 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
+import { deleteMessageHistory } from './chat';
 
 export interface Conversation {
   id: string;
@@ -14,4 +15,14 @@ const initialConversations: Conversation[] = [
 ];
 
 export const conversations = writable<Conversation[]>(initialConversations);
-export const selectedConversationId = writable<string | null>('1');
+export const selectedConversationId = writable<string | null>(null);
+
+export function deleteConversation(id: string) {
+    conversations.update(convs => convs.filter(c => c.id !== id));
+    deleteMessageHistory(id);
+
+    // If we deleted the selected chat, deselect it
+    if (get(selectedConversationId) === id) {
+        selectedConversationId.set(null);
+    }
+}
