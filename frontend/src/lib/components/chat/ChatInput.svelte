@@ -29,7 +29,6 @@
 				.map((f) => f.name)
 				.join(', ');
 			alert(`Selected file(s): ${fileNames}`);
-			// In a real implementation, you would start the upload process here.
 		}
 	}
 
@@ -38,13 +37,13 @@
 	}
 </script>
 
-<div class="px-4 pb-4 pt-2 bg-[#0d1117]">
-	<div class="max-w-3xl mx-auto">
+<div class="px-4 pb-4 pt-2 bg-white dark:bg-[#0d1117] border-t border-gray-200 dark:border-transparent">
+	<div>
 		{#if $isStreaming}
 			<div class="flex justify-center">
 				<button
 					on:click={handleStop}
-					class="flex items-center gap-2 px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700"
+					class="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -64,21 +63,19 @@
 				<textarea
 					bind:value={inputValue}
 					on:keydown={handleKeydown}
-					class="w-full p-3 pl-12 pr-12 bg-[#161b22] border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+					class="w-full p-3 pl-12 pr-12 bg-gray-100 dark:bg-[#161b22] border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
 					rows="1"
 					placeholder="Ask dost anything..."
 				></textarea>
 
-				<!-- FIX: This button now triggers the hidden file input -->
 				<button
 					type="button"
 					on:click={() => fileInput.click()}
-					class="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+					class="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
 					aria-label="Attach file"
 				>
 					<PaperclipIcon />
 				</button>
-				<!-- FIX: Hidden file input -->
 				<input
 					type="file"
 					bind:this={fileInput}
@@ -89,7 +86,7 @@
 
 				<button
 					type="submit"
-					class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+					class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
 					aria-label="Send message"
 				>
 					<svg
