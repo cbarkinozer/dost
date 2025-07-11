@@ -8,7 +8,7 @@
   let dropdownElement: HTMLElement;
   let popperInstance: any;
 
-  // Mock data
+  // Mock data for models
   const models = [
     { id: 'llama3-70b', name: 'llama3:70b', size: '70.6B' },
     { id: 'mistral-latest', name: 'mistral:latest', size: '7.2B' },
@@ -16,9 +16,14 @@
   ];
   let selectedModel = models[0];
 
-  // Mock parameters
-  let temperature = 0.8;
-  let seed = 1234;
+  // Mock parameters based on your request
+  let temperature = 1.0;
+  let maxTokens = 1024;
+  let streamResponse = true;
+  let topP = 1.0;
+  let seed: number | undefined = undefined; // Allow empty seed
+  let stopSequence = '';
+
 
   function toggleDropdown() {
     dropdownOpen = !dropdownOpen;
@@ -26,7 +31,6 @@
 
   function selectModel(model: typeof models[0]) {
     selectedModel = model;
-    // Keep dropdown open to adjust params
   }
 
   function closeDropdown(event: MouseEvent) {
@@ -70,7 +74,7 @@
     <div bind:this={dropdownElement} class="absolute z-10 w-80 rounded-xl bg-gray-800 border border-gray-700 p-2 shadow-lg text-gray-200">
       <div class="p-2">
         <h3 class="text-xs font-semibold uppercase text-gray-400 mb-2">Models</h3>
-        <input type="text" placeholder="Search a model" class="w-full bg-gray-700 border-gray-600 rounded-md p-2 mb-2 text-white focus:ring-blue-500 focus:border-blue-500 text-sm">
+        <input type="text" placeholder="Search a model..." class="w-full bg-gray-700 border-gray-600 rounded-md p-2 mb-2 text-white focus:ring-blue-500 focus:border-blue-500 text-sm">
         <div class="space-y-1 max-h-40 overflow-y-auto">
           {#each models as model (model.id)}
             <button on:click={() => selectModel(model)} class="w-full text-left flex items-center justify-between p-2 rounded-md hover:bg-gray-700">
@@ -83,8 +87,26 @@
         </div>
       </div>
       <hr class="border-gray-700 my-2">
+      <!-- NEW PARAMETERS SECTION -->
       <div class="p-2 space-y-4">
         <h3 class="text-xs font-semibold uppercase text-gray-400">Parameters</h3>
+        
+        <div class="flex items-center justify-between">
+            <label for="stream" class="text-sm font-medium">Stream</label>
+            <button
+                id="stream"
+                on:click={() => (streamResponse = !streamResponse)}
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                class:bg-blue-600={streamResponse}
+                class:bg-gray-600={!streamResponse}
+                role="switch"
+                aria-checked={streamResponse}
+                aria-label="Toggle response streaming"
+            >
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" class:translate-x-5={streamResponse} class:translate-x-0={!streamResponse}></span>
+            </button>
+        </div>
+
         <div class="space-y-2">
             <div class="flex justify-between items-center">
                 <label for="temperature" class="text-sm">Temperature</label>
@@ -92,10 +114,30 @@
             </div>
             <input type="range" id="temperature" min="0" max="2" step="0.01" bind:value={temperature} class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
         </div>
-         <div class="space-y-2">
-            <label for="seed" class="text-sm">Seed</label>
-            <input type="number" id="seed" bind:value={seed} class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-white focus:ring-blue-500 focus:border-blue-500 text-sm">
+
+        <div class="space-y-2">
+            <div class="flex justify-between items-center">
+                <label for="top-p" class="text-sm">Top P</label>
+                <span class="text-sm font-mono text-gray-400">{topP.toFixed(2)}</span>
+            </div>
+            <input type="range" id="top-p" min="0" max="1" step="0.01" bind:value={topP} class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
         </div>
+
+        <div class="space-y-1">
+            <label for="max-tokens" class="text-sm">Max Tokens</label>
+            <input type="number" id="max-tokens" bind:value={maxTokens} class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-white focus:ring-blue-500 focus:border-blue-500 text-sm">
+        </div>
+
+        <div class="space-y-1">
+            <label for="seed" class="text-sm">Seed</label>
+            <input type="number" id="seed" placeholder="Random" bind:value={seed} class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-white focus:ring-blue-500 focus:border-blue-500 text-sm">
+        </div>
+
+        <div class="space-y-1">
+            <label for="stop-sequence" class="text-sm">Stop Sequence</label>
+            <input type="text" id="stop-sequence" placeholder="e.g. 'Human:', '\n'" bind:value={stopSequence} class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-white focus:ring-blue-500 focus:border-blue-500 text-sm">
+        </div>
+
       </div>
     </div>
   {/if}
