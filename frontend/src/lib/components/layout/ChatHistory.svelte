@@ -1,6 +1,7 @@
 <script lang="ts">
     import { conversations, selectedConversationId, deleteConversation } from '$lib/stores/conversations';
     import { messageStore } from '$lib/stores/chat';
+    import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import PencilIcon from '$lib/components/icons/PencilIcon.svelte';
     import TrashIcon from '$lib/components/icons/TrashIcon.svelte';
@@ -31,7 +32,7 @@
     function handleDelete(e: MouseEvent, id: string) {
         e.stopPropagation(); // Prevent navigation when clicking the delete button
         if (confirm('Are you sure you want to delete this chat?')) {
-            const isCurrentChat = id === $selectedConversationId;
+            const isCurrentChat = id === $page.params.id;
             deleteConversation(id);
             if (isCurrentChat) {
                 goto('/');
@@ -72,11 +73,17 @@
 </nav>
 
 <!-- User/Settings Menu -->
-<div class="mt-auto p-2 border-t border-gray-700">
+<div class="mt-auto p-2 border-t border-gray-700 space-y-1">
     <a href="/settings" class="flex items-center gap-3 p-2 rounded-lg text-gray-200 hover:bg-gray-700">
         <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
             U
         </div>
-        <span class="text-sm font-medium">User Settings</span>
+        <span class="text-sm font-medium">Test User</span>
+    </a>
+    <a href="/login" class="flex items-center gap-3 p-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-gray-200">
+         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H5" />
+        </svg>
+        <span class="text-sm font-medium">Sign Out</span>
     </a>
 </div>
