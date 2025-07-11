@@ -1,11 +1,14 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-// Helper to check for mobile viewport
 function isMobile() {
     if (!browser) return false;
-    return window.innerWidth < 768; // md breakpoint in Tailwind
+    return window.innerWidth < 768;
 }
 
 export const pageTitle = writable('Welcome');
 export const isSidebarOpen = writable(!isMobile());
+
+
+export const isDarkMode = writable(true);
+export const streamResponse = writable(true);

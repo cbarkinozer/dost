@@ -1,7 +1,8 @@
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
-import { conversations, type Conversation } from './conversations';
+import { conversations, updateConversationTitle } from './conversations';
 import { goto } from '$app/navigation';
+import { streamResponse } from './ui';
 
 export interface Message {
 	id: string;
@@ -9,13 +10,11 @@ export interface Message {
 	content: string;
 }
 
-// Helper to generate IDs safely
 function generateId() {
 	if (browser) return crypto.randomUUID();
 	return Math.random().toString(36).substring(2, 15);
 }
 
-// A dictionary to hold all our mock conversations' messages
 const mockMessageHistory: Record<string, Message[]> = {
 	'1': [
 		{
@@ -55,18 +54,16 @@ const mockMessageHistory: Record<string, Message[]> = {
 				"SvelteKit compiles to vanilla JS at build time for performance, while Next.js (React) uses a virtual DOM at runtime. Svelte's reactivity is compiler-based, making it often simpler and faster."
 		}
 	],
-	'4': [] // Unsaved Conversation starts empty
+	'4': []
 };
 
-// --- Store Definitions ---
 export const messageStore = writable<Record<string, Message[]>>(mockMessageHistory);
 export const isStreaming = writable(false);
 
-// --- Private variables ---
 let streamInterval: NodeJS.Timeout | null = null;
-const responseWords = "This is a simulated streaming response. Each word appears one by one, demonstrating the effect of a real-time answer from a large language model.".split(" ");
+const fullMockResponse = "This is a simulated full response, delivered all at once because streaming is disabled. It demonstrates how the application can handle both streaming and non-streaming modes based on user preference.";
+const responseWords = fullMockResponse.split(" ");
 
-// --- Core Streaming Logic (Internal) ---
 function runStreamingSimulation(conversationId: string, assistantMessageId: string) {
 	let wordIndex = 0;
 	isStreaming.set(true);
@@ -80,7 +77,7 @@ function runStreamingSimulation(conversationId: string, assistantMessageId: stri
 					const lastMessage = conversationMessages.find(m => m.id === assistantMessageId);
 					if (lastMessage) {
 						lastMessage.content += contentChunk;
-						history[conversationId] = [...conversationMessages]; // Trigger update
+						history[conversationId] = [...conversationMessages];
 					}
 				}
 				return history;
@@ -92,7 +89,21 @@ function runStreamingSimulation(conversationId: string, assistantMessageId: stri
 	}, 100);
 }
 
-// --- Public Actions ---
+function deliverFullResponse(conversationId: string, assistantMessageId: string) {
+    isStreaming.set(true); 
+    setTimeout(() => {
+        if (get(isStreaming)) {
+            messageStore.update((history) => {
+                const lastMsg = history[conversationId]?.find(m => m.id === assistantMessageId);
+                if (lastMsg) {
+                    lastMsg.content = fullMockResponse;
+                }
+                return history;
+            });
+            isStreaming.set(false);
+        }
+    }, 1000); 
+}
 
 export function cancelStream() {
 	if (streamInterval) {
@@ -103,10 +114,9 @@ export function cancelStream() {
 }
 
 export function submitMessage(conversationId: string, content: string) {
-	cancelStream(); // Cancel any existing stream before starting a new one
-
+	cancelStream(); 
 	const userMessage: Message = { id: generateId(), role: 'user', content };
-	const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
+	const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...' };
 
 	messageStore.update((history) => {
 		if (!history[conversationId]) {
@@ -116,12 +126,15 @@ export function submitMessage(conversationId: string, content: string) {
 		return history;
 	});
 
-	runStreamingSimulation(conversationId, assistantMessage.id);
+    if (get(streamResponse)) {
+	    runStreamingSimulation(conversationId, assistantMessage.id);
+    } else {
+        deliverFullResponse(conversationId, assistantMessage.id);
+    }
 }
 
 export function regenerateResponse(conversationId: string) {
 	cancelStream();
-
 	messageStore.update((history) => {
 		const conversationMessages = history[conversationId];
 		if (conversationMessages) {
@@ -132,14 +145,18 @@ export function regenerateResponse(conversationId: string) {
 					break;
 				}
 			}
-
 			if (lastUserIndex !== -1) {
 				history[conversationId] = conversationMessages.slice(0, lastUserIndex + 1);
 			}
-
-			const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
+            
+			const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...' };
 			history[conversationId].push(assistantMessage);
-			runStreamingSimulation(conversationId, assistantMessage.id);
+            
+            if (get(streamResponse)) {
+			    runStreamingSimulation(conversationId, assistantMessage.id);
+            } else {
+                deliverFullResponse(conversationId, assistantMessage.id);
+            }
 		}
 		return history;
 	});
@@ -150,29 +167,4 @@ export function deleteMessageHistory(conversationId: string) {
 		delete history[conversationId];
 		return history;
 	});
-}
-
-export function createChatWithPrompt(prompt: string) {
-	const allConversations = get(conversations);
-	const newId = allConversations.length > 0 ? String(Math.max(...allConversations.map(c => Number(c.id))) + 1) : "1";
-    const newTitle = prompt.length > 30 ? prompt.substring(0, 27) + '...' : prompt;
-
-    // Add to conversations store
-	// FIX: Added the 'createdAt' property
-    conversations.update(convs => [{ id: newId, title: newTitle, pinned: false, createdAt: new Date() }, ...convs]);
-    
-    const userMessage: Message = { id: generateId(), role: 'user', content: prompt };
-    messageStore.update(history => {
-        history[newId] = [userMessage];
-        return history;
-    });
-
-    goto(`/c/${newId}`).then(() => {
-        const assistantMessage: Message = { id: generateId(), role: 'assistant', content: '' };
-        messageStore.update(history => {
-            history[newId].push(assistantMessage);
-            return history;
-        });
-        runStreamingSimulation(newId, assistantMessage.id);
-    });
 }

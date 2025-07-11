@@ -19,7 +19,6 @@
             submitMessage(conversationId, prompt);
         } else {
             const newId = generateId();
-			// FIX: Added the 'createdAt' property
             conversations.update(convs => [{ id: newId, title: newTitle, pinned: false, createdAt: new Date() }, ...convs]);
             messageStore.update(history => {
                 history[newId] = [];
@@ -39,15 +38,17 @@
     ];
 </script>
 
-<div class="flex flex-col items-center justify-center h-full text-gray-400 px-4">
-    <div class="text-3xl font-bold mb-2 text-gray-200">dost</div>
-    <div class="text-xl mb-8">How can I help you today?</div>
+<!-- FIX: Added light/dark mode text colors -->
+<div class="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 px-4">
+    <div class="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-200">dost</div>
+    <div class="text-xl mb-8 text-gray-600 dark:text-gray-400">How can I help you today?</div>
     
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl">
         {#each suggestions as suggestion}
-            <button on:click={() => handleSuggestionClick(`${suggestion.title} ${suggestion.subtitle}`)} class="bg-gray-800 p-4 rounded-lg text-left hover:bg-gray-700 transition-colors">
-                <div class="font-semibold text-white">{suggestion.title}</div>
-                <div>{suggestion.subtitle}</div>
+            <!-- FIX: This button now has both light and dark mode styles -->
+            <button on:click={() => handleSuggestionClick(`${suggestion.title} ${suggestion.subtitle}`)} class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-left hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                <div class="font-semibold text-gray-800 dark:text-white">{suggestion.title}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{suggestion.subtitle}</div>
             </button>
         {/each}
     </div>
