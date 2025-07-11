@@ -6,10 +6,14 @@
   import { messageStore } from '$lib/stores/chat';
   import { conversations, selectedConversationId } from '$lib/stores/conversations';
   import ChatPlaceholder from '$lib/components/chat/ChatPlaceholder.svelte';
+  import type { Message } from '$lib/stores/chat';
 
   $: conversationId = $page.params.id;
 
-  const currentMessages = derived(
+  const currentMessages = derived<
+    [typeof page, typeof messageStore],
+    Message[]
+  >(
     [page, messageStore],
     ([$page, $messageStore]) => {
       const convId = $page.params.id;
@@ -39,18 +43,19 @@
   {#if conversationId}
     <div class="flex-1 overflow-y-auto p-4">
         {#if $currentMessages.length > 0}
-            <div class="space-y-4 max-w-3xl mx-auto">
+            <div class="space-y-1">
                 {#each $currentMessages as message, i (message.id)}
                     <MessageBubble 
                       {conversationId}
                       role={message.role} 
                       content={message.content}
                       isLast={i === $currentMessages.length - 1}
+                      timestamp={message.timestamp}
+                      model={message.model}
                     />
                 {/each}
             </div>
         {:else}
-            <!-- FIX: Pass the current conversationId -->
             <ChatPlaceholder {conversationId} />
         {/if}
     </div>

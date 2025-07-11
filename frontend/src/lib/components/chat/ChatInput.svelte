@@ -38,7 +38,7 @@
 </script>
 
 <div class="px-4 pb-4 pt-2 bg-white dark:bg-[#0d1117] border-t border-gray-200 dark:border-transparent">
-	<div class="max-w-3xl mx-auto">
+	<div>
 		{#if $isStreaming}
 			<div class="flex justify-center">
 				<button

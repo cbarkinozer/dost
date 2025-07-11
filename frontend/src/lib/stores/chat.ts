@@ -2,12 +2,14 @@ import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { conversations, updateConversationTitle } from './conversations';
 import { goto } from '$app/navigation';
-import { streamResponse } from './ui';
+import { streamResponse, selectedModelName } from './ui';
 
 export interface Message {
 	id: string;
 	role: 'user' | 'assistant';
 	content: string;
+	timestamp: Date;
+	model?: string;
 }
 
 function generateId() {
@@ -17,42 +19,16 @@ function generateId() {
 
 const mockMessageHistory: Record<string, Message[]> = {
 	'1': [
-		{
-			id: generateId(),
-			role: 'user',
-			content: 'Can you give me a simple "Hello, World!" example in Python?'
-		},
-		{
-			id: generateId(),
-			role: 'assistant',
-			content: `Of course! Here is a classic "Hello, World!" in Python:\n\n\`\`\`python\ndef say_hello():\n    print("Hello, World!")\n\nsay_hello()\n\`\`\``
-		}
+		{ id: generateId(), role: 'user', content: 'Can you give me a simple "Hello, World!" example in Python?', timestamp: new Date(Date.now() - 60000 * 5) },
+		{ id: generateId(), role: 'assistant', content: `Of course! Here is a classic "Hello, World!" in Python:\n\n\`\`\`python\ndef say_hello():\n    print("Hello, World!")\n\nsay_hello()\n\`\`\``, timestamp: new Date(Date.now() - 60000 * 4), model: 'llama3:8b' }
 	],
 	'2': [
-		{
-			id: generateId(),
-			role: 'user',
-			content: 'What was the main cause of the fall of the Roman Empire?'
-		},
-		{
-			id: generateId(),
-			role: 'assistant',
-			content:
-				'Historians debate this, but key factors include economic troubles, overexpansion, political instability, and barbarian invasions.'
-		}
+		{ id: generateId(), role: 'user', content: 'What was the main cause of the fall of the Roman Empire?', timestamp: new Date(Date.now() - 60000 * 3) },
+		{ id: generateId(), role: 'assistant', content: 'Historians debate this, but key factors include economic troubles, overexpansion, political instability, and barbarian invasions.', timestamp: new Date(Date.now() - 60000 * 2), model: 'llama3:70b' }
 	],
 	'3': [
-		{
-			id: generateId(),
-			role: 'user',
-			content: 'What are the main differences between SvelteKit and Next.js?'
-		},
-		{
-			id: generateId(),
-			role: 'assistant',
-			content:
-				"SvelteKit compiles to vanilla JS at build time for performance, while Next.js (React) uses a virtual DOM at runtime. Svelte's reactivity is compiler-based, making it often simpler and faster."
-		}
+		{ id: generateId(), role: 'user', content: 'What are the main differences between SvelteKit and Next.js?', timestamp: new Date(Date.now() - 60000 * 1) },
+		{ id: generateId(), role: 'assistant', content: "SvelteKit compiles to vanilla JS at build time for performance, while Next.js (React) uses a virtual DOM at runtime. Svelte's reactivity is compiler-based, making it often simpler and faster.", timestamp: new Date(), model: 'mistral:latest' }
 	],
 	'4': []
 };
@@ -67,7 +43,6 @@ const responseWords = fullMockResponse.split(" ");
 function runStreamingSimulation(conversationId: string, assistantMessageId: string) {
 	let wordIndex = 0;
 	isStreaming.set(true);
-
 	streamInterval = setInterval(() => {
 		if (wordIndex < responseWords.length) {
 			const contentChunk = responseWords[wordIndex] + ' ';
@@ -115,8 +90,8 @@ export function cancelStream() {
 
 export function submitMessage(conversationId: string, content: string) {
 	cancelStream(); 
-	const userMessage: Message = { id: generateId(), role: 'user', content };
-	const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...' };
+	const userMessage: Message = { id: generateId(), role: 'user', content, timestamp: new Date() };
+	const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...', timestamp: new Date(), model: get(selectedModelName) };
 
 	messageStore.update((history) => {
 		if (!history[conversationId]) {
@@ -149,7 +124,7 @@ export function regenerateResponse(conversationId: string) {
 				history[conversationId] = conversationMessages.slice(0, lastUserIndex + 1);
 			}
             
-			const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...' };
+			const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...', timestamp: new Date(), model: get(selectedModelName) };
 			history[conversationId].push(assistantMessage);
             
             if (get(streamResponse)) {

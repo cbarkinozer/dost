@@ -7,7 +7,6 @@
             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Dark Mode</span>
             <span class="text-sm text-gray-500">Enable or disable the dark theme.</span>
         </span>
-        <!-- FIX: This button now reads from and writes to the global store -->
         <button
             on:click={() => ($isDarkMode = !$isDarkMode)}
             class:bg-blue-600={$isDarkMode}

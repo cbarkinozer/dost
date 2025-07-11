@@ -5,7 +5,6 @@
   import { isSidebarOpen } from '$lib/stores/ui';
 </script>
 
-<!-- FIX: Added light/dark mode text and background colors -->
 <div class="flex h-screen overflow-hidden bg-white text-gray-800 dark:bg-[#0d1117] dark:text-gray-200">
   
   {#if $isSidebarOpen}
