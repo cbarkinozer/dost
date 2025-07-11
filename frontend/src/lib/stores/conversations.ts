@@ -1,17 +1,19 @@
 import { writable, get } from 'svelte/store';
 import { deleteMessageHistory } from './chat';
 
+// FIX: Export the interface
 export interface Conversation {
   id: string;
   title: string;
+  pinned: boolean;
 }
 
 // Mock data for our conversation list
 const initialConversations: Conversation[] = [
-  { id: '1', title: 'Python Hello World' },
-  { id: '2', title: 'History of the Roman Empire' },
-  { id: '3', title: 'SvelteKit vs. Next.js' },
-  { id: '4', title: 'Unsaved Conversation' }
+  { id: '1', title: 'Python Hello World', pinned: true },
+  { id: '2', title: 'History of the Roman Empire', pinned: false },
+  { id: '3', title: 'SvelteKit vs. Next.js', pinned: false },
+  { id: '4', title: 'Unsaved Conversation', pinned: false }
 ];
 
 export const conversations = writable<Conversation[]>(initialConversations);
@@ -25,4 +27,14 @@ export function deleteConversation(id: string) {
     if (get(selectedConversationId) === id) {
         selectedConversationId.set(null);
     }
+}
+
+export function togglePin(id: string) {
+    conversations.update(convs => {
+        const conv = convs.find(c => c.id === id);
+        if (conv) {
+            conv.pinned = !conv.pinned;
+        }
+        return [...convs]; // Return new array to trigger update
+    });
 }
