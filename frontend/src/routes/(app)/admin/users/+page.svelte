@@ -65,8 +65,8 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="#" class="text-blue-400 hover:text-blue-300">Edit</a>
-                            <a href="#" class="text-red-400 hover:text-red-300">Delete</a>
+                            <button type="button" class="text-blue-400 hover:text-blue-300">Edit</button>
+                            <button type="button" class="text-red-400 hover:text-red-300">Delete</button>
                         </td>
                     </tr>
                 {/each}
