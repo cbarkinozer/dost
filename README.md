@@ -17,16 +17,22 @@ This project was born out of the belief that powerful AI tools should be accessi
 
 ## Core Features (Roadmap Goals)
 
--   ✅ **Rich Chat Interface:** A clean, responsive, and intuitive UI with full Markdown, LaTeX, and code syntax highlighting.
--   ✅ **Multi-Model Support:** Seamlessly switch between different LLM models for any conversation.
+-   ✅ **Rich & Responsive Interface:** A clean, intuitive UI with full Markdown, LaTeX, and code syntax highlighting. Fully responsive and PWA-enabled.
+-   ✅ **Advanced Theming:** Includes Light, Dark, and OLED modes, with options for custom backgrounds and system-preference auto-switching.
+-   ✅ **Multi-Model Support:** Seamlessly switch between different LLM models and adjust parameters (e.g., temperature, seed) for any conversation.
 -   ✅ **Streaming & Real-time Responses:** See the model "think" with real-time token streaming.
+-   ✅ **Advanced Chat Management:** Conversation history, searching/filtering, pinning, and branching.
 -   ✅ **Retrieval-Augmented Generation (RAG):**
     -   **Document Chat:** Upload PDFs, TXT, and other files to chat with your documents.
     -   **Web Search:** Augment conversations with real-time web search results.
--   ✅ **Persistence & Chat History:** All conversations are saved to a database and linked to user accounts.
--   ✅ **User Authentication:** Secure, multi-user system with user registration and login.
--   ✅ **Tools & Function Calling:** A framework for giving models access to external tools (e.g., calculators, APIs).
--   ✅ **Image Generation:** Integrate with models like DALL-E or Stable Diffusion.
+-   ✅ **Multi-Modal Interaction:**
+    -   **Voice I/O:** Support for push-to-talk voice input and text-to-speech (TTS) for responses.
+    -   **Image Generation:** Integrate with models like DALL-E or Stable Diffusion.
+-   ✅ **Tools & Function Calling:** A framework for giving models access to external tools (e.g., calculators, APIs), with a GUI for management.
+-   ✅ **Live Artifacts & Jupyter Integration:** Render and interact with HTML/CSS/JS code blocks in real-time; optional integration with a Jupyter backend for code execution.
+-   ✅ **Secure Multi-User System:**
+    -   **User Authentication:** Standard user registration and login.
+    -   **Role-Based Access Control (RBAC):** Admin panel for managing users, roles, and permissions.
 -   ✅ **Easy Deployment:** Fully containerized with Docker for a simple, one-command setup.
 
 ---
@@ -86,11 +92,11 @@ This project will be built "UI-first". We will create the entire frontend applic
 
 -   [x] **Phase 1: Project & UI Foundation:** Initialize SvelteKit/FastAPI monorepo. Build the static chat UI layout with a sidebar and main content area using Tailwind CSS.
 -   [x] **Phase 2: Core Chat Interactivity:** Implement Svelte stores for state management. Make the chat input functional (add messages, simulate responses) using local state.
--   [ ] **Phase 3: Rich Content & Markdown:** Integrate `marked` and a syntax highlighting library (like `highlight.js`) to render LLM responses with proper Markdown, code blocks, and other formatting.
--   [ ] **Phase 4: Conversation History UI:** Build the UI for managing multiple chats. Create a `ChatHistory` component in the sidebar that displays a list of mock conversations. Make them clickable.
--   [ ] **Phase 5: Dynamic Routing & Chat Pages:** Implement SvelteKit's dynamic routing (`/c/[id]`). When a user clicks a mock conversation in the sidebar, they are navigated to a unique page for that chat, which displays its specific (mocked) message history.
--   [ ] **Phase 6: Advanced Chat Controls:** Build the UI components for advanced interactions: "Copy Message", "Regenerate Response", "Edit Message", and "Delete Message". Add mock functionality to them (e.g., updating the Svelte store).
--   [ ] **Phase 7: The Settings & Profile Page:** Create a `/settings` page with multiple tabs (Profile, Interface, Models). Build all the UI controls (text inputs, toggles, dropdowns) with no backend logic.
+-   [x] **Phase 3: Rich Content & Markdown:** Integrate `marked` and a syntax highlighting library (`highlight.js`) to render LLM responses with proper Markdown, code blocks, and other formatting.
+-   [x] **Phase 4: Conversation History UI:** Build the UI for managing multiple chats. Create a `ChatHistory` component in the sidebar that displays a list of mock conversations. Make them clickable.
+-   [x] **Phase 5: Dynamic Routing & Chat Pages:** Implement SvelteKit's dynamic routing (`/c/[id]`). When a user clicks a mock conversation in the sidebar, they are navigated to a unique page for that chat, which displays its specific (mocked) message history.
+-   [x] **Phase 6: Advanced Chat Controls:** Build the UI components for advanced interactions: "Copy Message", "Regenerate Response", "Edit Message", and "Delete Message". Add mock functionality to them (e.g., updating the Svelte store).
+-   [x] **Phase 7: The Settings & Profile Page:** Create a `/settings` page with multiple tabs (Profile, Interface, Models). Build all the UI controls (text inputs, toggles, dropdowns) with no backend logic.
 -   [ ] **Phase 8: The Document Management UI (RAG):** Create a `/documents` page where users can see a list of their uploaded files. Build the UI for the file upload component (it won't actually upload yet). Add UI elements to the chat input to "attach" a mock document to a conversation.
 -   [ ] **Phase 9: The Admin Panel UI:** Create an `/admin` area with pages for User Management, System Settings, and Model Management. Build the tables and forms to display and edit mock data.
 -   [ ] **Phase 10: The Login/Register UI:** Create the authentication pages (`/login`, `/register`). Build the forms, but have them lead to a successful "mock" login that just navigates the user to the main chat page.
