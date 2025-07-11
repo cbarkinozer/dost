@@ -10,21 +10,19 @@
 	import { browser } from '$app/environment';
 	import { derived, writable } from 'svelte/store';
 
-	// The search query is now a proper Svelte store
 	const searchQuery = writable('');
 
-	// Create a derived store that filters and sorts conversations
-	// FIX: Provide explicit types for the callback parameters
 	const filteredConversations = derived([conversations, searchQuery], ([$conversations, $searchQuery]) => {
 		const filtered = $searchQuery
 			? $conversations.filter((c: Conversation) => c.title.toLowerCase().includes($searchQuery.toLowerCase()))
 			: $conversations;
 		
-		// FIX: Provide explicit types for sort parameters
+		// FIX: Sort by pinned status, then by creation date (newest first)
 		return filtered.sort((a: Conversation, b: Conversation) => {
 			if (a.pinned && !b.pinned) return -1;
 			if (!a.pinned && b.pinned) return 1;
-			return a.title.localeCompare(b.title);
+			// For items with the same pinned status, sort by date
+			return b.createdAt.getTime() - a.createdAt.getTime();
 		});
 	});
 
@@ -35,14 +33,15 @@
 
 	function handleNewChat() {
 		const newId = generateId();
-		const newTitle = `New Chat ${newId.substring(0, 4)}`;
+		const newTitle = `New Chat`; // Keep it simple
 
 		messageStore.update((history) => {
 			history[newId] = [];
 			return history;
 		});
 
-		conversations.update((convs) => [{ id: newId, title: newTitle, pinned: false }, ...convs]);
+		// FIX: Add createdAt property
+		conversations.update((convs) => [{ id: newId, title: newTitle, pinned: false, createdAt: new Date() }, ...convs]);
 		goto(`/c/${newId}`);
 	}
 
@@ -63,6 +62,7 @@
     }
 </script>
 
+<!-- ... rest of the component's HTML remains the same ... -->
 <!-- Header with New Chat and Search -->
 <div class="p-2 space-y-2">
 	<button
@@ -73,7 +73,6 @@
 		<PencilIcon />
 	</button>
 	<div class="relative">
-		<!-- FIX: Bind to the store value using the $ prefix -->
 		<input
 			type="text"
 			bind:value={$searchQuery}
@@ -89,7 +88,6 @@
 <!-- Conversation List -->
 <nav class="flex-1 overflow-y-auto px-2">
 	<ul class="space-y-1">
-		<!-- Now that filteredConversations is correctly typed, 'conv' is no longer 'unknown' -->
 		{#each $filteredConversations as conv (conv.id)}
 			<li class="group relative">
 				<a

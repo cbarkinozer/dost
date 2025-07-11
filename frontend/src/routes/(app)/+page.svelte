@@ -9,7 +9,7 @@
 <div class="flex-1 flex flex-col h-full">
 
   <div class="flex-1 overflow-y-auto p-4">
-    <ChatPlaceholder />
+    <ChatPlaceholder conversationId={null} />
   </div>
   
   <div class="flex-shrink-0">

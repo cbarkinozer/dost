@@ -5,7 +5,7 @@
   import { isSidebarOpen } from '$lib/stores/ui';
 </script>
 
-<div class="flex h-screen bg-[#0d1117] text-gray-200 overflow-hidden">
+<div class="relative flex h-screen bg-[#0d1117] text-gray-200 overflow-hidden">
   
   <!-- Sidebar Overlay for Mobile -->
   {#if $isSidebarOpen}
@@ -18,22 +18,32 @@
 
   <!-- Sidebar -->
   <aside 
-    class="absolute md:relative z-30 h-full w-64 flex-shrink-0 bg-[#161b22] flex flex-col p-2 text-gray-300 transition-transform duration-300 ease-in-out"
-    class:-translate-x-full={!$isSidebarOpen}
+    class="absolute md:relative z-30 h-full flex-shrink-0 bg-[#161b22] flex flex-col p-2 text-gray-300 transition-all duration-300 ease-in-out"
+    class:w-64={$isSidebarOpen}
+    class:w-0={$isSidebarOpen === false}
+    class:p-2={$isSidebarOpen}
+    class:p-0={$isSidebarOpen === false}
+    class:border-r={$isSidebarOpen}
+    class:border-transparent={$isSidebarOpen === false}
+    class:border-gray-800={$isSidebarOpen}
   >
-    <ChatHistory />
+    <div class="overflow-hidden h-full flex flex-col">
+        <ChatHistory />
+    </div>
   </aside>
 
   <!-- Main Content -->
   <main class="flex-1 flex flex-col overflow-hidden">
     <!-- Main Header -->
     <header class="p-4 border-b border-gray-800 flex items-center flex-shrink-0">
-      <button class="md:hidden mr-4" on:click={() => isSidebarOpen.update(v => !v)}>
-        <SidebarIcon />
-      </button>
+        <!-- This button is now always visible -->
+        <button class="p-1 rounded-md hover:bg-gray-700" on:click={() => isSidebarOpen.update(v => !v)} title="Toggle Sidebar">
+            <SidebarIcon />
+        </button>
       <div class="flex-1 flex justify-center">
         <ModelSelector />
       </div>
+      <div class="w-8"></div> <!-- Spacer to keep model selector centered -->
     </header>
 
     <!-- Slot for page content -->
