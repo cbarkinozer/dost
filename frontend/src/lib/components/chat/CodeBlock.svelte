@@ -1,6 +1,5 @@
 <script lang="ts">
 	import hljs from 'highlight.js';
-	import 'highlight.js/styles/github-dark.css';
 	import ClipboardIcon from '$lib/components/icons/ClipboardIcon.svelte';
 	import { browser } from '$app/environment';
 	import { tick } from 'svelte';

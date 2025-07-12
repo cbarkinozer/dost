@@ -15,6 +15,12 @@
 
 <svelte:head>
     <title>dost</title>
+    {#if browser}
+        <link 
+            rel="stylesheet"
+            href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${$isDarkMode ? 'github-dark' : 'github'}.min.css`}
+        >
+    {/if}
 </svelte:head>
 
 <slot />

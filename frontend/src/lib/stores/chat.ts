@@ -88,9 +88,16 @@ export function cancelStream() {
 	isStreaming.set(false);
 }
 
-export function submitMessage(conversationId: string, content: string) {
-	cancelStream(); 
-	const userMessage: Message = { id: generateId(), role: 'user', content, timestamp: new Date() };
+export function submitMessage(conversationId: string, content: string, files: File[] = []) {
+	cancelStream();
+	let messageContent = content;
+	if (files.length > 0) {
+		const fileNames = files.map((f) => f.name).join(', ');
+		const fileText = `**Attached files:** ${fileNames}\n\n`;
+		messageContent = fileText + messageContent;
+	}
+
+	const userMessage: Message = { id: generateId(), role: 'user', content: messageContent, timestamp: new Date() };
 	const assistantMessage: Message = { id: generateId(), role: 'assistant', content: get(streamResponse) ? '' : 'Thinking...', timestamp: new Date(), model: get(selectedModelName) };
 
 	messageStore.update((history) => {

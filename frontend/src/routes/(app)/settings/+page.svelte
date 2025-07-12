@@ -1,25 +1,20 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import Tab from '$lib/components/settings/Tab.svelte';
-
-    // These will be the components for each tab's content
     import ProfileSettings from '$lib/components/settings/ProfileSettings.svelte';
     import InterfaceSettings from '$lib/components/settings/InterfaceSettings.svelte';
     
     let activeTab: string;
     
-    // This reactive block runs whenever the URL changes
     $: {
-        // Get the 'tab' parameter from the URL, or default to 'profile'
         activeTab = $page.url.searchParams.get('tab') || 'profile';
     }
 </script>
 
-<div class="p-4 sm:p-6 md:p-8 h-full overflow-y-auto">
+<div class="p-4 sm:p-6 md:p-8 h-full overflow-y-auto text-gray-900 dark:text-gray-100">
     <div class="max-w-4xl mx-auto">
         <h1 class="text-2xl font-bold mb-6">Settings</h1>
         
-        <!-- Tab Navigation -->
         <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
             <nav class="-mb-px flex space-x-4" aria-label="Tabs">
                 <Tab href="/settings?tab=profile" active={activeTab === 'profile'}>Profile</Tab>
@@ -28,24 +23,17 @@
             </nav>
         </div>
         
-
-        <!-- Tab Content -->
         <div class="mt-8">
+            <h2 class="text-xl font-semibold capitalize mb-4">{activeTab}</h2>
             {#if activeTab === 'profile'}
                 <ProfileSettings />
             {:else if activeTab === 'interface'}
                 <InterfaceSettings />
             {:else if activeTab === 'models'}
-                <div class="mt-6">
-                    <p>Model settings will go here.</p>
+                <div class="mt-6 bg-white dark:bg-[#161b22] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p class="text-gray-600 dark:text-gray-400">User-specific model preferences and API key management will be available here.</p>
                 </div>
             {/if}
-        </div>
-        <div>
-            <h2 class="text-xl font-semibold capitalize">{activeTab}</h2>
-            <p class="text-gray-500 mt-2">
-                Settings for the {activeTab} section will be displayed here.
-            </p>
         </div>
     </div>
 </div>

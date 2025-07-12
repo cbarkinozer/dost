@@ -17,12 +17,12 @@
     }
 </script>
 
-<div class="p-4 sm:p-6 md:p-8 h-full overflow-y-auto text-gray-200">
+<div class="p-4 sm:p-6 md:p-8 h-full overflow-y-auto text-gray-900 dark:text-gray-200">
     <div class="max-w-7xl mx-auto">
         <h1 class="text-2xl font-bold mb-6">Admin Panel</h1>
         
         <!-- Tab Navigation -->
-        <div class="mb-6 border-b border-gray-700">
+        <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
             <nav class="-mb-px flex space-x-4" aria-label="Tabs">
                 <Tab href="/admin/users" active={activeTab === 'users'}>Users</Tab>
                 <Tab href="/admin/settings" active={activeTab === 'settings'}>System Settings</Tab>
