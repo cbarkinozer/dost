@@ -5,7 +5,7 @@
 	import TrashIcon from '$lib/components/icons/TrashIcon.svelte';
 	import ThumbUpIcon from '$lib/components/icons/ThumbUpIcon.svelte';
 	import ThumbDownIcon from '$lib/components/icons/ThumbDownIcon.svelte';
-	import ClipboardIcon from '$lib/components/icons/ClipboardIcon.svelte';
+	import ClipboardIcon from '$lib/components/icons/ClipBoardIcon.svelte';
 	import { regenerateResponse } from '$lib/stores/chat';
 	import { browser } from '$app/environment';
 
