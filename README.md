@@ -4,7 +4,7 @@
 
 This project was born out of the belief that powerful AI tools should be accessible to everyone without proprietary restrictions or branding clauses. `dost` is for developers, hobbyists, and organizations who want full control over their AI interactions and data.
 
-![Dost Project Banner](https://placehold.co/1200x630/1e293b/a5b4fc/png?text=dost&font=raleway)
+![Dost Project Banner](dost_image.jpg)
 
 ## Core Philosophy
 
