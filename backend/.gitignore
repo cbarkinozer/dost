@@ -1,1 +1,4 @@
 .env
+venv/*
+.scannerwork/*
+**/__pycache__/**
